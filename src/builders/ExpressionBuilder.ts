@@ -1,24 +1,28 @@
 import { IBuilder } from '../interfaces/IBuilder';
 import { StringConstant } from '../expressions/StringConstant';
 import { IExpression } from '../interfaces/IExpression';
+import { EmptyExpression } from '../expressions/EmptyExpression';
 
 export class ExpressionBuilder implements IBuilder {
     private expression : IExpression;
+    private context : string;
     
     constructor() {
-        this.expression = new StringConstant();
+        this.expression = new EmptyExpression();
+        this.context = '';
     }
 
-    create() {
-        throw new Error('Method not implemented.');
+    public getProduct(): IExpression {
+        
+        this.context = '';
+        return this.expression;
     }
 
-    reset(): void {
-        throw new Error('Method not implemented.');
+    public reset(): void {
+        this.expression = new EmptyExpression();
     }
 
-    setContext(text: string): void {
-        throw new Error('Method not implemented.');
+    public setContext(text: string): void {
+        this.context = text;
     }
-
 }

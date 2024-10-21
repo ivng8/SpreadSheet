@@ -2,13 +2,18 @@ import { Cell } from '../Cell';
 import { IBuilder } from '../interfaces/IBuilder'
 
 export class CellBuilder implements IBuilder {
+
     private cell : Cell;
+    private address : string;
     
     constructor() {
         this.cell = new Cell();
+        this.address = '';
     }
 
     public getProduct(): Cell {
+        
+        this.address = '';
         return this.cell;
     }
 
@@ -16,8 +21,7 @@ export class CellBuilder implements IBuilder {
         this.cell = new Cell();
     }
 
-    setContext(text: string): void {
-        this.cell.
+    public setContext(text: string): void {
+        this.address = text;
     }
-    
 }
