@@ -1,5 +1,5 @@
 export interface IBuilder {
-    create(): any;
+    getProduct(): any;
 
     reset(): void;
 
