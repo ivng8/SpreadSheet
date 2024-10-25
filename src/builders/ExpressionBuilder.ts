@@ -13,7 +13,10 @@ export class ExpressionBuilder implements IBuilder {
     }
 
     public getProduct(): IExpression {
-        
+        let parenCounter: number = 0;
+        for (let i = 0; i < this.context.length; i += 1) {
+
+        }
         this.context = '';
         return this.expression;
     }
@@ -24,5 +27,12 @@ export class ExpressionBuilder implements IBuilder {
 
     public setContext(text: string): void {
         this.context = text;
+        this.detectErrors();
+    }
+
+    private detectErrors(): void {
+        if (false) {
+            new Conflict('Invalid Expression');
+        }
     }
 }
