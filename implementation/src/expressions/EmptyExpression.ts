@@ -6,4 +6,7 @@ export class EmptyExpression implements IExpression {
         return null;
     }
 
+    public display(): string {
+        return "";
+    }
 }
