@@ -7,7 +7,11 @@ export class CellReference implements IExpression {
         this.reference = reference;
     }
 
-    public evaluate(): number {
+    public evaluate(): any {
         
+    }
+
+    public display(): string {
+        return this.evaluate + '';
     }
 }
