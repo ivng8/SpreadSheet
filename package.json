@@ -1,0 +1,21 @@
+{
+  "name": "team711-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/team711-project",
+  "entry": [
+    "./src/index.ts"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Nathan Huang",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "install": "^0.13.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.3"
+  }
+}
