@@ -7,11 +7,11 @@ export class NumericConstant implements IExpression {
         this.value = value;
     }
 
-    public evaluate(): any {
+    public evaluate(): number {
         return this.value;
     }
 
     public display(): string {
-        return this.value + "";
+        return this.value + '';
     }
 }

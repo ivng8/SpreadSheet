@@ -14,10 +14,6 @@ export class FormulaExpression implements IExpression {
     }
 
     public evaluate(): any {
-        if (this.left.evaluate() == null || this.right.evaluate() == null) {
-            return new NullOperand();
-        }
-
         switch (this.operator) {
             case Operator.DIV:
                 return this.left.evaluate() / this.right.evaluate();
@@ -35,10 +31,6 @@ export class FormulaExpression implements IExpression {
     }
 
     public display(): string {
-        if (this.evaluate().instanceOf(NullOperand)) {
-            return this.evaluate().display();
-        } else {
-            return this.evaluate() + "";
-        }
+        return this.evaluate() + '';
     }
 }

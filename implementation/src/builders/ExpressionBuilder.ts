@@ -10,6 +10,7 @@ import { InvalidExpression } from '../errors/InvalidExpression';
 import { FormulaExpression } from '../expressions/FormulaExpression';
 import { Operator } from '../enums/Operator';
 import { Director } from "../Director";
+import { NullOperand } from '../errors/NullOperand';
 
 export class ExpressionBuilder implements IBuilder {
     private expression : IExpression;
@@ -31,12 +32,34 @@ export class ExpressionBuilder implements IBuilder {
         this.expression = new EmptyExpression();
     }
 
-    public setContext(text: string): void {
-        this.context = text;
+    public setContext(text: string[]): void {
+        this.context = text[0].replaceAll(' ', '');
         this.makeExpression();
     }
 
     private makeExpression(): void {
+        if (!this.context) {
+            this.expression = new EmptyExpression();
+            return;
+        }
+        this.checkParentheses();
+        if (/^-?\d*\.?\d+$/.test(this.context)) {
+            this.expression = new NumericConstant(parseFloat(this.context));
+        } else if (/^[A-Za-z]/.test(this.context)) {
+            this.expression = new StringConstant(this.context);
+        } else if (/^[A-Za-z]+\d+$/.test(this.context)) {
+            this.expression = new CellReference(this.context);
+        } else if (/^[A-Za-z]+\d+:[A-Za-z]+\d+$/.test(this.context)) {
+            const [start, end] = this.context.split(':');
+            this.expression = new RangeExpression(start, end);
+        } else if (this.context == '') {
+            this.expression = new EmptyExpression();
+        } else {
+            this.expression = new InvalidExpression();
+        }
+    }
+
+    private checkParentheses(): void {
         let parenCounter: number = 0;
         let skip_indicies: number[] = [];
         for (let i = 0; i < this.context.length; i += 1) {
@@ -60,53 +83,73 @@ export class ExpressionBuilder implements IBuilder {
             this.expression = new WrongParentheses();
             return;
         }
+        this.expression = this.checkOperators(skip_indicies);
+    }
+
+    private checkOperators(skip_indicies: number[]): IExpression {
         for (let i = 0; i < this.context.length; i += 1) {
             if (skip_indicies.includes(i)) {
                 continue;
             }
-            switch (this.context.charAt(i)) {
-                case '+': {
-                    const left: IExpression = new Director().makeExpression(this.context.substring(0, i));
-                    const right: IExpression = new Director().makeExpression(this.context.substring(i + 1, this.context.length));
-                    if (left.evaluate() == null || right.evaluate() == null) {
-                        this.expression = new InvalidExpression();
-                        return;
-                    }
-                    this.expression = new FormulaExpression(Operator.PLUS, left, right);
-                    return;
-                }
-                case '-': 
-                case '*': 
-                case '/': 
-                case '^': {
-                    const left: IExpression = new Director().makeExpression(this.context.substring(0, i));
-                    const right: IExpression = new Director().makeExpression(this.context.substring(i + 1, this.context.length));
-                    if (left.evaluate() == null || right.evaluate() == null || left.evaluate().isinstanceOf(String) 
-                        || right.evaluate().isinstanceOf(String)) {
-                        this.expression = new InvalidExpression();
-                        return;
-                    }
-                    this.expression = new FormulaExpression(Operator.MINUS, left, right);
-                    return;
-                }
-                default:
-                    break;
+            let char : string = this.context.charAt(i);
+            if (char === '+' || char === '-') {
+                return this.generalFormula(char, i);
+            } else  if (char === '*' || char === '/') {
+                return this.generalFormula(char, i);
+            } else if (char === '^') {
+                return this.generalFormula(char, i);
             }
         }
-        this.context = this.context.trim();
-        if (/^-?\d*\.?\d+$/.test(this.context)) {
-            this.expression = new NumericConstant(parseFloat(this.context));
-        } else if (/^[A-Za-z]/.test(this.context)) {
-            this.expression = new StringConstant(this.context);
-        } else if (/^[A-Za-z]+\d+$/.test(this.context)) {
-            this.expression = new CellReference(this.context);
-        } else if (/^[A-Za-z]+\d+:[A-Za-z]+\d+$/.test(this.context)) {
-            const [start, end] = this.context.split(':');
-            this.expression = new RangeExpression(start, end);
-        } else if (this.context == '') {
-            this.expression = new EmptyExpression();
-        } else {
-            this.expression = new InvalidExpression();
+        return this.goDownLevel(skip_indicies);
+    }
+
+    private generalFormula(sign: string, i: number): IExpression {
+        const left: IExpression = new Director().makeExpression(this.context.substring(0, i));
+        const right: IExpression = new Director().makeExpression(this.context.substring(i + 1, this.context.length));
+        if (left.evaluate() == null || right.evaluate() == null) {
+            return new NullOperand();
         }
+        let words : boolean = this.stringCompute(left, right);
+        let oper : Operator;
+        switch (sign) {
+            case '+':
+                oper = Operator.PLUS;
+                break;
+            case '-':
+                if (words) {
+                    return new InvalidExpression();
+                }
+                oper = Operator.MINUS;
+                break;
+            case '/':
+                if (words) {
+                    return new InvalidExpression();
+                }
+                oper = Operator.DIV;
+                break;
+            case '*':
+                if (words) {
+                    return new InvalidExpression();
+                }
+                oper = Operator.MULT;
+                break;
+            case '^':
+                if (words) {
+                    return new InvalidExpression();
+                }
+                oper = Operator.POWER;
+                break;
+            default:
+                throw Error('Illegal Operator');
+        }
+        return new FormulaExpression(oper, left, right);
+    }
+
+    private stringCompute(left: IExpression, right: IExpression): boolean {
+        return left.evaluate() instanceof String || right.evaluate() instanceof String;
+    }
+
+    private goDownLevel(skip_indicies: number[]): IExpression {
+        return new Director().makeExpression(this.context.substring(1, this.context.length - 1));
     }
 }

@@ -4,5 +4,5 @@ export interface IBuilder {
 
     reset(): void;
 
-    setContext(text: string): void;
+    setContext(text: string[]): void;
 }

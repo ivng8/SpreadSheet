@@ -9,7 +9,7 @@ export class RangeExpression implements IExpression {
         this.end = end;
     }
     
-    public evaluate() {
+    public evaluate(): number | string {
         throw new Error("Method not implemented.");
     }
 

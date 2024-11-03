@@ -7,8 +7,8 @@ export class CellReference implements IExpression {
         this.reference = reference;
     }
 
-    public evaluate(): any {
-        
+    public evaluate(): number | string {
+        return 
     }
 
     public display(): string {

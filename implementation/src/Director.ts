@@ -6,9 +6,10 @@ import { IExpression } from "./interfaces/IExpression";
 
 export class Director {
     
-    public makeCell(address: string): Cell {
+    public makeCell(address: string, input: string): Cell {
         let builder : IBuilder = new CellBuilder();
-        builder.setContext(address);
+        let text : string[] = [address, input];
+        builder.setContext(text);
         let cell : Cell = builder.getProduct();
         builder.reset();
         return cell;
@@ -16,7 +17,8 @@ export class Director {
 
     public makeExpression(expression: string): IExpression {
         let builder : IBuilder = new ExpressionBuilder();
-        builder.setContext(expression);
+        let text : string[] = [expression];
+        builder.setContext(text);
         let ans : IExpression = builder.getProduct();
         builder.reset();
         return ans;
