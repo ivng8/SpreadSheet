@@ -17,7 +17,7 @@ export class SpreadSheet {
     public insertRow(index: number): void {
         const letters = Array.from(this.grid.keys());
         for (let i = 0; i < letters.length; i += 1) {
-            this.grid.set(index + "", new Director().makeCell(index + "", ""));
+            this.grid.set(index + "", new Director().makeCell(index + "", "", this));
         }
     }
 }   

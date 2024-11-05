@@ -1,6 +1,7 @@
 import { IBuilder } from '../interfaces/IBuilder'
 
 export class SpreadSheetBuilder implements IBuilder {
+
     getProduct() {
         throw new Error('Method not implemented.');
     }

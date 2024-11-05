@@ -11,14 +11,17 @@ import { FormulaExpression } from '../expressions/FormulaExpression';
 import { Operator } from '../enums/Operator';
 import { Director } from "../Director";
 import { NullOperand } from '../errors/NullOperand';
+import { SpreadSheet } from '../SpreadSheet';
 
 export class ExpressionBuilder implements IBuilder {
     private expression : IExpression;
     private context : string;
+    private sheet : SpreadSheet;
     
-    constructor() {
+    constructor(reference: SpreadSheet) {
         this.expression = new EmptyExpression();
         this.context = '';
+        this.sheet = reference;
     }
 
     public getProduct(): IExpression {
@@ -48,12 +51,10 @@ export class ExpressionBuilder implements IBuilder {
         } else if (/^[A-Za-z]/.test(this.context)) {
             this.expression = new StringConstant(this.context);
         } else if (/^[A-Za-z]+\d+$/.test(this.context)) {
-            this.expression = new CellReference(this.context);
-        } else if (/^[A-Za-z]+\d+:[A-Za-z]+\d+$/.test(this.context)) {
-            const [start, end] = this.context.split(':');
-            this.expression = new RangeExpression(start, end);
-        } else if (this.context == '') {
-            this.expression = new EmptyExpression();
+            this.expression = new CellReference(this.context, this.sheet);
+        } else if (/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/.test(this.context)) {
+            const [_, func, start, end] = this.context.match(/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/)!;
+            this.expression = new RangeExpression(func, start, end, this.sheet);
         } else {
             this.expression = new InvalidExpression();
         }
@@ -104,8 +105,8 @@ export class ExpressionBuilder implements IBuilder {
     }
 
     private generalFormula(sign: string, i: number): IExpression {
-        const left: IExpression = new Director().makeExpression(this.context.substring(0, i));
-        const right: IExpression = new Director().makeExpression(this.context.substring(i + 1, this.context.length));
+        const left: IExpression = new Director().makeExpression(this.context.substring(0, i), this.sheet);
+        const right: IExpression = new Director().makeExpression(this.context.substring(i + 1, this.context.length), this.sheet);
         if (left.evaluate() == null || right.evaluate() == null) {
             return new NullOperand();
         }
@@ -150,6 +151,6 @@ export class ExpressionBuilder implements IBuilder {
     }
 
     private goDownLevel(skip_indicies: number[]): IExpression {
-        return new Director().makeExpression(this.context.substring(1, this.context.length - 1));
+        return new Director().makeExpression(this.context.substring(1, this.context.length - 1), this.sheet);
     }
 }

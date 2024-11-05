@@ -1,14 +1,17 @@
 import { IExpression } from "../interfaces/IExpression";
+import { SpreadSheet } from "../SpreadSheet";
 
 export class CellReference implements IExpression {
-    private reference: string;
+    private reference : string;
+    private sheet : SpreadSheet;
 
-    constructor(reference: string) {
+    constructor(reference: string, sheet: SpreadSheet) {
         this.reference = reference;
+        this.sheet = sheet;
     }
 
     public evaluate(): number | string {
-        return 
+        return this.sheet.getCell(this.reference).getValue();
     }
 
     public display(): string {
