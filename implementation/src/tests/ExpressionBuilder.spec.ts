@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { Director } from "../model/Director";
 import { InvalidExpression } from "../model/errors/InvalidExpression";
 import { NullOperand } from "../model/errors/NullOperand";
