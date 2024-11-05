@@ -1,13 +1,8 @@
-import { IError } from "../interfaces/IError";
+import { AError } from "../errors/AError";
 
-export class InvalidExpression implements IError {
-
-    evaluate() {
-        throw new Error("Method not implemented.");
-    }
+export class InvalidExpression extends AError {
     
-    display(): string {
-        throw new Error("Method not implemented.");
+    public display(): string {
+        return 'Invalid Expression';
     }
-    
 }

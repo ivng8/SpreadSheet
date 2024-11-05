@@ -1,13 +1,8 @@
-import { IError } from "../interfaces/IError";
+import { AError } from "../errors/AError";
 
-export class WrongParentheses implements IError {
-    
-    public evaluate(): any {
-        return null;
-    }
+export class WrongParentheses extends AError {
     
     public display(): string {
         return "Invalid use of parentheses";
     }
-    
 }

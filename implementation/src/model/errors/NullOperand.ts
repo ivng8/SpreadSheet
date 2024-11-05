@@ -1,13 +1,8 @@
-import { IError } from "../interfaces/IError";
+import { AError } from "../errors/AError";
 
-export class NullOperand implements IError {
-
-    public evaluate(): any {
-        return null;
-    }
+export class NullOperand extends AError {
 
     public display(): string {
         return 'Missing operand';
     }
-    
 }

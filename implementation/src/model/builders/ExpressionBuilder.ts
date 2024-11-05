@@ -36,7 +36,7 @@ export class ExpressionBuilder implements IBuilder {
     }
 
     public setContext(text: string[]): void {
-        this.context = text[0].replaceAll(' ', '');
+        this.context = text[0].split(' ').join('');
         this.makeExpression();
     }
 
@@ -46,17 +46,19 @@ export class ExpressionBuilder implements IBuilder {
             return;
         }
         this.checkParentheses();
+        this.simpleExpression();
+    }
+
+    private simpleExpression(): void {
         if (/^-?\d*\.?\d+$/.test(this.context)) {
             this.expression = new NumericConstant(parseFloat(this.context));
-        } else if (/^[A-Za-z]/.test(this.context)) {
+        } else if (/^[A-Za-z]+$/.test(this.context)) {
             this.expression = new StringConstant(this.context);
         } else if (/^[A-Za-z]+\d+$/.test(this.context)) {
             this.expression = new CellReference(this.context, this.sheet);
         } else if (/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/.test(this.context)) {
             const [_, func, start, end] = this.context.match(/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/)!;
             this.expression = new RangeExpression(func, start, end, this.sheet);
-        } else {
-            this.expression = new InvalidExpression();
         }
     }
 
@@ -84,24 +86,27 @@ export class ExpressionBuilder implements IBuilder {
             this.expression = new WrongParentheses();
             return;
         }
-        this.expression = this.checkOperators(skip_indicies);
+        this.checkOperators(skip_indicies);
     }
 
-    private checkOperators(skip_indicies: number[]): IExpression {
+    private checkOperators(skip_indicies: number[]): void {
         for (let i = 0; i < this.context.length; i += 1) {
             if (skip_indicies.includes(i)) {
                 continue;
             }
             let char : string = this.context.charAt(i);
             if (char === '+' || char === '-') {
-                return this.generalFormula(char, i);
+                this.expression = this.generalFormula(char, i);
+                return;
             } else  if (char === '*' || char === '/') {
-                return this.generalFormula(char, i);
+                this.expression = this.generalFormula(char, i);
+                return;
             } else if (char === '^') {
-                return this.generalFormula(char, i);
+                this.expression = this.generalFormula(char, i);
+                return;
             }
         }
-        return this.goDownLevel(skip_indicies);
+        this.goDownLevel();
     }
 
     private generalFormula(sign: string, i: number): IExpression {
@@ -147,10 +152,11 @@ export class ExpressionBuilder implements IBuilder {
     }
 
     private stringCompute(left: IExpression, right: IExpression): boolean {
-        return left.evaluate() instanceof String || right.evaluate() instanceof String;
+        return typeof left.evaluate() === 'string' || typeof right.evaluate() === 'string';
     }
 
-    private goDownLevel(skip_indicies: number[]): IExpression {
-        return new Director().makeExpression(this.context.substring(1, this.context.length - 1), this.sheet);
+    private goDownLevel(): void {
+        if (this.context.charAt(0) === '(')
+        this.expression = new Director().makeExpression(this.context.substring(1, this.context.length - 1), this.sheet);
     }
 }

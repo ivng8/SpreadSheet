@@ -1,13 +1,8 @@
-import { IError } from "../interfaces/IError";
+import { AError } from "../errors/AError";
 
-export class InvalidValues implements IError {
-    
-    public evaluate(): any {
-        return null;
-    }
+export class InvalidValues extends AError {
 
     public display(): string {
         return 'Mixed values';
     }
-    
 }
