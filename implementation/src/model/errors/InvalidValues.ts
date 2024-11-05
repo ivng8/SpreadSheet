@@ -1,8 +1,7 @@
-import { AError } from "../errors/AError";
+import { AError } from '../errors/AError';
 
 export class InvalidValues extends AError {
-
-    public display(): string {
-        return 'Mixed values';
-    }
+  public display(): string {
+    return 'Mixed values';
+  }
 }

@@ -1,3 +1,1 @@
-export class MergeConflictResolver {
-    
-}
+export class MergeConflictResolver {}

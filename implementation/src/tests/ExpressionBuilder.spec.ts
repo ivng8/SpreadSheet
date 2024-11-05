@@ -1,13 +1,13 @@
 /* eslint-disable no-undef */
-import { Director } from "../model/Director";
-import { InvalidExpression } from "../model/errors/InvalidExpression";
-import { NullOperand } from "../model/errors/NullOperand";
-import { WrongParentheses } from "../model/errors/WrongParentheses";
-import { EmptyExpression } from "../model/expressions/EmptyExpression";
-import { FormulaExpression } from "../model/expressions/FormulaExpression";
-import { SpreadSheet } from "../model/SpreadSheet";
+import { Director } from '../model/Director';
+import { InvalidExpression } from '../model/errors/InvalidExpression';
+import { NullOperand } from '../model/errors/NullOperand';
+import { WrongParentheses } from '../model/errors/WrongParentheses';
+import { EmptyExpression } from '../model/expressions/EmptyExpression';
+import { FormulaExpression } from '../model/expressions/FormulaExpression';
+import { SpreadSheet } from '../model/SpreadSheet';
 
-describe('ExpressionBuilder', (): void =>{
+describe('ExpressionBuilder', (): void => {
   let director: Director;
   let spreadsheet: SpreadSheet;
 
@@ -57,7 +57,7 @@ describe('ExpressionBuilder', (): void =>{
     });
   });
 
-  describe('Range Expressions', ()=> {
+  describe('Range Expressions', () => {
     it('should parse valid range expressions', (): void => {
       const expr = director.makeExpression('SUM(A1:B2)', spreadsheet);
       expect(expr).toBeDefined();
@@ -139,9 +139,9 @@ describe('ExpressionBuilder', (): void =>{
     });
 
     it('should handle null right operands', (): void => {
-        const expr = director.makeExpression('1+', spreadsheet);
-        expect(expr).toBeInstanceOf(NullOperand);
-      });
+      const expr = director.makeExpression('1+', spreadsheet);
+      expect(expr).toBeInstanceOf(NullOperand);
+    });
 
     it('should handle invalid expressions', (): void => {
       const expr = director.makeExpression('2++3', spreadsheet);

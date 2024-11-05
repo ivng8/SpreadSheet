@@ -1,8 +1,7 @@
-import { AError } from "../errors/AError";
+import { AError } from '../errors/AError';
 
 export class IllegalOperands extends AError {
-    
-    public display(): string {
-        return 'Illegal operands';
-    }
+  public display(): string {
+    return 'Illegal operands';
+  }
 }

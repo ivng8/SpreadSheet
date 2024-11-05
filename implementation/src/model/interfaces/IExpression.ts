@@ -1,6 +1,5 @@
 export interface IExpression {
-    
-    evaluate() : any;
+  evaluate(): any;
 
-    display() : string;
+  display(): string;
 }

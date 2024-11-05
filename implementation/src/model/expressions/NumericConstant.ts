@@ -1,17 +1,17 @@
-import { IExpression } from "../interfaces/IExpression";
+import { IExpression } from '../interfaces/IExpression';
 
 export class NumericConstant implements IExpression {
-    private value: number;
+  private value: number;
 
-    public constructor(value: number) {
-        this.value = value;
-    }
+  public constructor(value: number) {
+    this.value = value;
+  }
 
-    public evaluate(): number {
-        return this.value;
-    }
+  public evaluate(): number {
+    return this.value;
+  }
 
-    public display(): string {
-        return this.value + '';
-    }
+  public display(): string {
+    return this.value + '';
+  }
 }

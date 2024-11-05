@@ -1,8 +1,7 @@
 export interface IBuilder {
-    
-    getProduct(): any;
+  getProduct(): any;
 
-    reset(): void;
+  reset(): void;
 
-    setContext(text: string[]): void;
+  setContext(text: string[]): void;
 }

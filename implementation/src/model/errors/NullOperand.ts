@@ -1,8 +1,7 @@
-import { AError } from "../errors/AError";
+import { AError } from '../errors/AError';
 
 export class NullOperand extends AError {
-
-    public display(): string {
-        return 'Missing operand';
-    }
+  public display(): string {
+    return 'Missing operand';
+  }
 }

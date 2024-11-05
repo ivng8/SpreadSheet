@@ -111,7 +111,7 @@ export default [
       // General rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-unused-vars': 'off', // Using TypeScript's no-unused-vars instead
-      
+
       // JSX Accessibility rules
       'jsx-a11y/alt-text': 'warn',
       'jsx-a11y/aria-role': 'warn',

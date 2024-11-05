@@ -1,3 +1,1 @@
-export class Conflict {
-    
-}
+export class Conflict {}

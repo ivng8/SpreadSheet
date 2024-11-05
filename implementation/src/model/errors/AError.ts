@@ -1,13 +1,11 @@
-import { IError } from "../interfaces/IError";
+import { IError } from '../interfaces/IError';
 
 export abstract class AError implements IError {
-    
-    public evaluate(): any {
-        return null;
-    }
+  public evaluate(): any {
+    return null;
+  }
 
-    public display(): string {
-        return 'Error';
-    }
-    
+  public display(): string {
+    return 'Error';
+  }
 }
