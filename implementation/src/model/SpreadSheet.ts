@@ -4,7 +4,11 @@ import { User } from "./User";
 
 export class SpreadSheet {
     private grid : Map<string, Cell>;
-    private users : User = [];
+    //private users : User = [];
+
+    public constructor() {
+        this.grid = new Map<string, Cell>();
+    }
 
     public getCell(address : string): Cell {
         const cell = this.grid.get(address);

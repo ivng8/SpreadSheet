@@ -8,7 +8,7 @@ export class Cell {
     private address: string;
     private input: string;
     private expression: IExpression;
-    private versionHistory: VersionHistory;
+    //private versionHistory: VersionHistory;
     private sheet: SpreadSheet;
 
     public constructor(address: string, input: string, reference: SpreadSheet) {

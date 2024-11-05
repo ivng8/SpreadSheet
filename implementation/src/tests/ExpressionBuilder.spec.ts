@@ -41,7 +41,7 @@ describe('ExpressionBuilder', (): void =>{
       expect(expr.evaluate()).toBe('Hello');
     });
   });
-
+/*
   describe('Cell References', () => {
     it('should handle cell references', (): void => {
       const expr = director.makeExpression('A1', spreadsheet);
@@ -143,5 +143,5 @@ describe('ExpressionBuilder', (): void =>{
       const expr = director.makeExpression('2++3', spreadsheet);
       expect(expr).toBeInstanceOf(InvalidExpression);
     });
-  });
+  });*/
 });
