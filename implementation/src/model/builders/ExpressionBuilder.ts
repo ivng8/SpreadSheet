@@ -36,11 +36,7 @@ export class ExpressionBuilder implements IBuilder {
     }
 
     public setContext(text: string[]): void {
-<<<<<<< HEAD
-        this.context = text[0].split(' ').join('');
-=======
         this.context = text[0].replace(/\s+/g, '');
->>>>>>> e13c4aeccc070e94da631b30b60d1b7ac94c2f6c
         this.makeExpression();
     }
 

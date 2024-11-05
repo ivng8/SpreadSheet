@@ -3,10 +3,7 @@ import { InvalidExpression } from "../model/errors/InvalidExpression";
 import { NullOperand } from "../model/errors/NullOperand";
 import { WrongParentheses } from "../model/errors/WrongParentheses";
 import { EmptyExpression } from "../model/expressions/EmptyExpression";
-<<<<<<< HEAD
 import { FormulaExpression } from "../model/expressions/FormulaExpression";
-=======
->>>>>>> e13c4aeccc070e94da631b30b60d1b7ac94c2f6c
 import { SpreadSheet } from "../model/SpreadSheet";
 
 describe('ExpressionBuilder', (): void =>{
@@ -45,11 +42,7 @@ describe('ExpressionBuilder', (): void =>{
       expect(expr.evaluate()).toBe('Hello');
     });
   });
-<<<<<<< HEAD
 
-=======
-/*
->>>>>>> e13c4aeccc070e94da631b30b60d1b7ac94c2f6c
   describe('Cell References', () => {
     it('should handle cell references', (): void => {
       const expr = director.makeExpression('A1', spreadsheet);
@@ -68,23 +61,12 @@ describe('ExpressionBuilder', (): void =>{
       const expr = director.makeExpression('SUM(A1:B2)', spreadsheet);
       expect(expr).toBeDefined();
     });
-<<<<<<< HEAD
-=======
-
-    it('should handle invalid range expressions', (): void => {
-      const expr = director.makeExpression('SUM(A1B2)', spreadsheet);
-      expect(expr).toBeInstanceOf(InvalidExpression);
-    });
->>>>>>> e13c4aeccc070e94da631b30b60d1b7ac94c2f6c
   });
 
   describe('Arithmetic Operations', () => {
     it('should evaluate to 5 when the expression is `2+3`', (): void => {
       const expr = director.makeExpression('2+3', spreadsheet);
-<<<<<<< HEAD
       expect(expr).toBeInstanceOf(FormulaExpression);
-=======
->>>>>>> e13c4aeccc070e94da631b30b60d1b7ac94c2f6c
       expect(expr.evaluate()).toBe(5);
     });
 
@@ -117,10 +99,7 @@ describe('ExpressionBuilder', (): void =>{
   describe('String Operations', () => {
     it('should concatenate strings with plus', (): void => {
       const expr = director.makeExpression('Hello+World', spreadsheet);
-<<<<<<< HEAD
       expect(expr).toBeInstanceOf(FormulaExpression);
-=======
->>>>>>> e13c4aeccc070e94da631b30b60d1b7ac94c2f6c
       expect(expr.evaluate()).toBe('HelloWorld');
     });
 
@@ -153,7 +132,6 @@ describe('ExpressionBuilder', (): void =>{
   });
 
   describe('Error Handling', () => {
-<<<<<<< HEAD
     it('should handle null left operands', (): void => {
       const expr = director.makeExpression('+5', spreadsheet);
       expect(expr).toBeInstanceOf(NullOperand);
@@ -169,16 +147,4 @@ describe('ExpressionBuilder', (): void =>{
       expect(expr).toBeInstanceOf(NullOperand);
     });
   });
-=======
-    it('should handle null operands', (): void => {
-      const expr = director.makeExpression('A1+5', spreadsheet);
-      expect(expr).toBeInstanceOf(NullOperand);
-    });
-
-    it('should handle invalid expressions', (): void => {
-      const expr = director.makeExpression('2++3', spreadsheet);
-      expect(expr).toBeInstanceOf(InvalidExpression);
-    });
-  });*/
->>>>>>> e13c4aeccc070e94da631b30b60d1b7ac94c2f6c
 });
