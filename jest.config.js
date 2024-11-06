@@ -1,3 +1,4 @@
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
@@ -6,7 +7,9 @@ module.exports = {
     '^.+\\.tsx?$': [
       'ts-jest',
       {
-        tsconfig: 'tsconfig.json'
+        tsconfig: 'tsconfig.json',
+        diagnostics: false,
+        isolatedModules: true
       }
     ]
   },
@@ -18,6 +21,14 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
-  testPathIgnorePatterns: ['/node_modules/'],
-  verbose: true
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/eslint.config.mjs'
+  ],
+  verbose: true,
+  bail: 0,
+  silent: false,
+  forceExit: true,
+  detectOpenHandles: true,
+  runner: 'jest-runner'
 };
