@@ -1,9 +1,9 @@
-import { Cell } from 'model/Cell';
+import { Cell } from 'model/components/Cell';
 import { IExpression } from '../interfaces/IExpression';
 import { SpreadSheet } from '../SpreadSheet';
-import { InvalidRange } from 'model/errors/InvalidRange';
 import { MixedValues } from 'model/errors/MixedValues';
 import { IllegalOperands } from 'model/errors/IllegalOperands';
+import { InvalidRange } from 'model/errors/InvalidRange';
 
 export class RangeExpression implements IExpression {
   private func: string;

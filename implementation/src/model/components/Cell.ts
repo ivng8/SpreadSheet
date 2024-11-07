@@ -1,9 +1,9 @@
-import { IExpression } from './interfaces/IExpression';
+import { IExpression } from '../interfaces/IExpression';
 // import { VersionHistory } from "./version/VersionHistory";
 // import { EmptyExpression } from "./expressions/EmptyExpression";
-import { Director } from './Director';
-import { SpreadSheet } from './SpreadSheet';
-import { IError } from './interfaces/IError';
+import { Director } from '../Director';
+import { SpreadSheet } from '../SpreadSheet';
+import { IError } from '../interfaces/IError';
 
 export class Cell {
   private address: string;

@@ -12,7 +12,7 @@ import { Operator } from '../enums/Operator';
 import { Director } from '../Director';
 import { NullOperand } from '../errors/NullOperand';
 import { SpreadSheet } from '../SpreadSheet';
-import { Cell } from 'model/Cell';
+import { Cell } from 'model/components/Cell';
 
 export class ExpressionBuilder implements IBuilder {
   private expression: IExpression;

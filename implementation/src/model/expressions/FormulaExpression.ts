@@ -1,6 +1,6 @@
 import { IExpression } from '../interfaces/IExpression';
 import { Operator } from '../enums/Operator';
-import { Cell } from 'model/Cell';
+import { Cell } from 'model/components/Cell';
 import { MixedValues } from 'model/errors/MixedValues';
 import { IllegalOperands } from 'model/errors/IllegalOperands';
 

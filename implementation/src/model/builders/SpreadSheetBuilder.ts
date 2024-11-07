@@ -1,4 +1,4 @@
-import { Cell } from 'model/Cell';
+import { Cell } from 'model/components/Cell';
 import { IBuilder } from '../interfaces/IBuilder';
 
 export class SpreadSheetBuilder implements IBuilder {
@@ -9,7 +9,11 @@ export class SpreadSheetBuilder implements IBuilder {
   }
 
   public getProduct() {
-    throw new Error('Method not implemented.');
+    for (let i = 0; i < 25; i += 1) {
+       for (let j = 0; j < 50 ; j += 1) {
+        this.map.push(new Cell())
+       }
+    }
   }
 
   public reset(): void {

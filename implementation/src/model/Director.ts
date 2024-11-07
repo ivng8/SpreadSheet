@@ -1,7 +1,7 @@
 import { CellBuilder } from './builders/CellBuilder';
 import { ExpressionBuilder } from './builders/ExpressionBuilder';
 import { SpreadSheetBuilder } from './builders/SpreadSheetBuilder';
-import { Cell } from './Cell';
+import { Cell } from './components/Cell';
 import { IBuilder } from './interfaces/IBuilder';
 import { IExpression } from './interfaces/IExpression';
 import { SpreadSheet } from './SpreadSheet';

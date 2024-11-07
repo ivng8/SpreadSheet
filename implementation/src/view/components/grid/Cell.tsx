@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Cell } from 'model/Cell'; // Adjust path as needed
+import { Cell } from 'model/components/Cell'; // Adjust path as needed
 import { SpreadSheet } from 'model/SpreadSheet';
 import '../../../index.css'
 

@@ -1,4 +1,4 @@
-import { Cell } from '../Cell';
+import { Cell } from '../components/Cell';
 import { IBuilder } from '../interfaces/IBuilder';
 import { SpreadSheet } from '../SpreadSheet';
 import { VersionEntry } from '../version/VersionEntry';

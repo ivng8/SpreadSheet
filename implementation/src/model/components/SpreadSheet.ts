@@ -1,4 +1,4 @@
-import { Cell } from './Cell';
+import { Cell } from './components/Cell';
 import { Director } from './Director';
 import { User } from './User';
 
@@ -23,5 +23,29 @@ export class SpreadSheet {
     for (let i = 0; i < letters.length; i += 1) {
       this.grid.set(index + '', new Director().makeCell(index + '', '', this));
     }
+  }
+
+  public deleteRow(index: number): void {
+
+  }
+
+  public insertColumn(index: number): void {
+
+  }
+
+  public deleteColumn(index: number): void {
+
+  }
+
+  public clearCell(address: string): void {
+
+  }
+
+  public recalculate(): void {
+    
+  }
+
+  public display(): void {
+
   }
 }
