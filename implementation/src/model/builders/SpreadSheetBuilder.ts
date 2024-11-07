@@ -1,13 +1,22 @@
+import { Cell } from 'model/Cell';
 import { IBuilder } from '../interfaces/IBuilder';
 
 export class SpreadSheetBuilder implements IBuilder {
-  getProduct() {
+  private map: Map<string, Cell>;
+
+  public constructor() {
+    this.map = new Map<string, Cell>;
+  }
+
+  public getProduct() {
     throw new Error('Method not implemented.');
   }
-  reset(): void {
-    throw new Error('Method not implemented.');
+
+  public reset(): void {
+    this.map.clear();
   }
-  setContext(text: string[]): void {
+
+  public setContext(text: string[]): void {
     throw new Error('Method not implemented.');
   }
 }

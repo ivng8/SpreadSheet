@@ -6,8 +6,8 @@ export class SpreadSheet {
   private grid: Map<string, Cell>;
   //private users : User = [];
 
-  public constructor() {
-    this.grid = new Map<string, Cell>();
+  public constructor(grid: Map<string, Cell>) {
+    this.grid = grid;
   }
 
   public getCell(address: string): Cell {
