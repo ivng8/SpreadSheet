@@ -1,57 +1,27 @@
 {
   "compilerOptions": {
-    // Language and Environment
     "target": "ES2020",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "jsx": "react-jsx",
-
-    // Modules
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "skipLibCheck": true,
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "isolatedModules": true,
-
-    // JavaScript Support
-    "allowJs": true,
-    "checkJs": true,
-
-    // Emit
     "noEmit": true,
-
-    // Type Checking
+    "jsx": "preserve",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
-    // Interop Constraints
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-
-    // Path Configuration
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "model/*": ["./implementation/src/model/*"],
+      "view/*": ["./implementation/src/view/*"],
+      "@/*": ["./implementation/src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.js",
-    "src/**/*.jsx",
-    "vite-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "build",
-    "dist",
-    "coverage",
-    ".pnpm-store"
-  ],
-  "references": [
-    { "path": "./tsconfig.node.json" }
-  ]
+  "include": ["implementation/src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -4,6 +4,13 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "model/*": ["./implementation/src/model/*"],
+      "view/*": ["./implementation/src/view/*"],
+      "@/*": ["./implementation/src/*"]
+    }
   },
+  "include": ["vite.config.ts"]
 }
