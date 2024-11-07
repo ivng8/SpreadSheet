@@ -6,7 +6,7 @@ import { NullOperand } from '../model/errors/NullOperand';
 import { WrongParentheses } from '../model/errors/WrongParentheses';
 import { EmptyExpression } from '../model/expressions/EmptyExpression';
 import { FormulaExpression } from '../model/expressions/FormulaExpression';
-import { SpreadSheet } from '../model/SpreadSheet';
+import { SpreadSheet } from 'model/components/SpreadSheet';
 
 describe('ExpressionBuilder', (): void => {
   let director: Director;

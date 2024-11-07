@@ -11,7 +11,7 @@ import { FormulaExpression } from '../expressions/FormulaExpression';
 import { Operator } from '../enums/Operator';
 import { Director } from '../Director';
 import { NullOperand } from '../errors/NullOperand';
-import { SpreadSheet } from '../SpreadSheet';
+import { SpreadSheet } from 'model/components/SpreadSheet';
 import { Cell } from 'model/components/Cell';
 
 export class ExpressionBuilder implements IBuilder {

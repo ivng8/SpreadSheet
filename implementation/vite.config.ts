@@ -4,13 +4,13 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  root: './implementation/src',
+  root: './src',
   base: '/',
   resolve: {
     alias: {
-      'model': resolve(__dirname, './implementation/src/model'),
-      'view': resolve(__dirname, './implementation/src/view'),
-      '@': resolve(__dirname, './implementation/src')
+      'model': resolve(__dirname, './src/model'),
+      'view': resolve(__dirname, './src/view'),
+      '@': resolve(__dirname, './src')
     }
   },
   server: {

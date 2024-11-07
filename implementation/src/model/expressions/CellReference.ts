@@ -1,5 +1,5 @@
 import { IExpression } from '../interfaces/IExpression';
-import { SpreadSheet } from '../SpreadSheet';
+import { SpreadSheet } from 'model/components/SpreadSheet';
 
 export class CellReference implements IExpression {
   private reference: string;

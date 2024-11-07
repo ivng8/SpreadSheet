@@ -4,7 +4,7 @@ import { SpreadSheetBuilder } from './builders/SpreadSheetBuilder';
 import { Cell } from './components/Cell';
 import { IBuilder } from './interfaces/IBuilder';
 import { IExpression } from './interfaces/IExpression';
-import { SpreadSheet } from './SpreadSheet';
+import { SpreadSheet } from 'model/components/SpreadSheet';
 
 export class Director {
   public makeCell(address: string, input: string, reference: SpreadSheet): Cell {

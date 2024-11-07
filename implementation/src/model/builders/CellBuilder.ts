@@ -1,8 +1,8 @@
 import { Cell } from '../components/Cell';
 import { IBuilder } from '../interfaces/IBuilder';
-import { SpreadSheet } from '../SpreadSheet';
-import { VersionEntry } from '../version/VersionEntry';
-import { VersionHistory } from '../version/VersionHistory';
+import { SpreadSheet } from 'model/components/SpreadSheet';
+// import { VersionEntry } from 'model/version/VersionEntry';
+// import { VersionHistory } from '../version/VersionHistory';
 
 export class CellBuilder implements IBuilder {
   private address: string;
@@ -17,7 +17,7 @@ export class CellBuilder implements IBuilder {
 
   public getProduct(): Cell {
     let cell: Cell = new Cell(this.address, this.input, this.sheet);
-    let history: VersionHistory = new VersionHistory();
+    // let history: VersionHistory = new VersionHistory();
     this.address = '';
     return cell;
   }

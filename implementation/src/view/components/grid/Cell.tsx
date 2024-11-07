@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useCallback, useMemo } from 'react';
 import { Cell } from 'model/components/Cell'; // Adjust path as needed
-import { SpreadSheet } from 'model/SpreadSheet';
+import { SpreadSheet } from 'model/components/SpreadSheet';
 import '../../../index.css'
 
 interface CellProps {

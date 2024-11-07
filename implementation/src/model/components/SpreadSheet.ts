@@ -1,5 +1,5 @@
-import { Cell } from './components/Cell';
-import { Director } from './Director';
+import { Cell } from './Cell';
+import { Director } from '../Director';
 import { User } from './User';
 
 export class SpreadSheet {
@@ -42,7 +42,7 @@ export class SpreadSheet {
   }
 
   public recalculate(): void {
-    
+
   }
 
   public display(): void {

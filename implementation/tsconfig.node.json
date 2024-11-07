@@ -7,9 +7,9 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "model/*": ["./implementation/src/model/*"],
-      "view/*": ["./implementation/src/view/*"],
-      "@/*": ["./implementation/src/*"]
+      "model/*": ["./src/model/*"],
+      "view/*": ["./src/view/*"],
+      "@/*": ["./src/*"]
     }
   },
   "include": ["vite.config.ts"]
