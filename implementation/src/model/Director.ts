@@ -16,8 +16,8 @@ export class Director {
     return cell;
   }
 
-  public makeExpression(expression: string, reference: SpreadSheet): IExpression {
-    let builder: IBuilder = new ExpressionBuilder(reference);
+  public makeExpression(expression: string, reference: SpreadSheet, cell: Cell): IExpression {
+    let builder: IBuilder = new ExpressionBuilder(reference, cell);
     let text: string[] = [expression];
     builder.setContext(text);
     let ans: IExpression = builder.getProduct();

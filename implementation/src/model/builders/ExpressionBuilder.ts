@@ -12,15 +12,18 @@ import { Operator } from '../enums/Operator';
 import { Director } from '../Director';
 import { NullOperand } from '../errors/NullOperand';
 import { SpreadSheet } from '../SpreadSheet';
+import { Cell } from 'model/Cell';
 
 export class ExpressionBuilder implements IBuilder {
   private expression: IExpression;
   private context: string;
   private sheet: SpreadSheet;
+  private cell: Cell;
 
-  constructor(reference: SpreadSheet) {
+  constructor(reference: SpreadSheet, cell: Cell) {
     this.expression = new EmptyExpression();
     this.context = '';
+    this.cell = cell;
     this.sheet = reference;
   }
 
@@ -57,10 +60,8 @@ export class ExpressionBuilder implements IBuilder {
     } else if (/^[A-Za-z]+\d+$/.test(this.context)) {
       this.expression = new CellReference(this.context, this.sheet);
     } else if (/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/.test(this.context)) {
-      const [_, func, start, end] = this.context.match(
-        /^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/
-      )!;
-      this.expression = new RangeExpression(func, start, end, this.sheet);
+      const [func, start, end] = this.context.match(/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/)!;
+      this.expression = new RangeExpression(func, start, end, this.sheet, this.cell);
     }
   }
 
@@ -114,11 +115,13 @@ export class ExpressionBuilder implements IBuilder {
   private generalFormula(sign: string, i: number): IExpression {
     const left: IExpression = new Director().makeExpression(
       this.context.substring(0, i),
-      this.sheet
+      this.sheet,
+      this.cell
     );
     const right: IExpression = new Director().makeExpression(
       this.context.substring(i + 1, this.context.length),
-      this.sheet
+      this.sheet,
+      this.cell
     );
     if (left.evaluate() == null || right.evaluate() == null) {
       return new NullOperand();
@@ -156,7 +159,7 @@ export class ExpressionBuilder implements IBuilder {
       default:
         throw Error('Illegal Operator');
     }
-    return new FormulaExpression(oper, left, right);
+    return new FormulaExpression(oper, left, right, this.cell);
   }
 
   private stringCompute(left: IExpression, right: IExpression): boolean {
@@ -167,7 +170,8 @@ export class ExpressionBuilder implements IBuilder {
     if (this.context.charAt(0) === '(')
       this.expression = new Director().makeExpression(
         this.context.substring(1, this.context.length - 1),
-        this.sheet
+        this.sheet,
+        this.cell
       );
   }
 }

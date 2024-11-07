@@ -3,6 +3,7 @@ import { IExpression } from './interfaces/IExpression';
 // import { EmptyExpression } from "./expressions/EmptyExpression";
 import { Director } from './Director';
 import { SpreadSheet } from './SpreadSheet';
+import { IError } from './interfaces/IError';
 
 export class Cell {
   private address: string;
@@ -15,7 +16,7 @@ export class Cell {
     this.address = address;
     this.input = input;
     this.sheet = reference;
-    this.expression = new Director().makeExpression(this.input, this.sheet);
+    this.expression = new Director().makeExpression(this.input, this.sheet, this);
   }
 
   public getAddress(): string {
@@ -28,7 +29,11 @@ export class Cell {
 
   public updateContents(newText: string): void {
     this.input = newText;
-    this.expression = new Director().makeExpression(this.input, this.sheet);
+    this.expression = new Director().makeExpression(this.input, this.sheet, this);
+  }
+
+  public catchErrors(error: IError): void {
+    this.expression = error;
   }
 
   public getValue(): any {
