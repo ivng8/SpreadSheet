@@ -38,7 +38,7 @@ export class SpreadSheet {
   }
 
   public clearCell(address: string): void {
-
+    this.grid.get(address).
   }
 
   public recalculate(): void {
