@@ -28,7 +28,7 @@ export class SpreadSheet {
       }
     }
     for (let i = 0; i < letters.length; i += 1) {
-      this.grid.set(index + '', new Director().makeCell(index + '', '', this));
+      this.grid.set(keys[i] + '' + index, new Director().makeCell(index + '', '', this));
     }
   }
 

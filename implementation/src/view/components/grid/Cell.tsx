@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Cell } from 'model/components/Cell'; // Adjust path as needed
+import { Button } from "../../shadcnui/button"
+import { Cell } from 'model/components/Cell';
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import '../../../index.css'
 
@@ -11,6 +12,7 @@ interface CellProps {
   onUpdate: (address: string, newValue: string) => void;
   isSelected: boolean;
   onSelect: (address: string) => void;
+  onAddressChange?: (address: string) => void;
 }
 
 const CellView: React.FC<CellProps> = ({
@@ -19,18 +21,19 @@ const CellView: React.FC<CellProps> = ({
   spreadsheet,
   onUpdate,
   isSelected,
-  onSelect
+  onSelect,
+  onAddressChange
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(initialInput);
 
-  // Memoize cell instance
   const cell = useMemo(() => {
     return new Cell(address, initialInput, spreadsheet);
   }, [address, initialInput, spreadsheet]);
 
   const handleSelect = () => {
     onSelect(address);
+    onAddressChange?.(address)
   };
 
   const startEditing = () => {
@@ -51,11 +54,12 @@ const CellView: React.FC<CellProps> = ({
           startEditing();
         } else {
           handleBlur();
+          cell.updateContents(inputValue);
         }
         break;
       case 'Escape':
         if (isEditing) {
-          setInputValue(cell.getInput());
+          setInputValue('');
           setIsEditing(false);
         }
         break;
@@ -97,10 +101,10 @@ const CellView: React.FC<CellProps> = ({
   }
 
   return (
-    <button
-      type="button"
-      className={`w-full h-full px-2 py-1 text-left border ${
-        isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+    <Button
+      variant={isSelected ? "secondary" : "ghost"}
+      className={`w-full h-full p-0 m-0 font-normal hover:bg-blue-50 rounded-none border border-gray-200 ${
+        isSelected ? 'bg-blue-50 border-blue-500' : ''
       }`}
       onClick={handleSelect}
       onDoubleClick={startEditing}
@@ -110,14 +114,15 @@ const CellView: React.FC<CellProps> = ({
       role="gridcell"
       tabIndex={isSelected ? 0 : -1}
     >
-      <span className="block truncate">
-        {displayValue()}
-      </span>
-    </button>
+      <div className="w-full px-2 py-1 text-left">
+        <span className="block truncate">
+          {displayValue()}
+        </span>
+      </div>
+    </Button>
   );
 };
 
-// Error boundary component
 class CellErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: { children: React.ReactNode }) {
     super(props);
@@ -131,17 +136,18 @@ class CellErrorBoundary extends React.Component<{ children: React.ReactNode }, {
   render() {
     if (this.state.hasError) {
       return (
-        <button
-          type="button"
-          className="w-full h-full px-2 py-1 text-left text-red-500 border border-red-200"
+        <Button
+          variant="ghost"
+          className="w-full h-full p-0 m-0 rounded-none border border-gray-200"
           aria-label="Error in cell"
           role="gridcell"
         >
-          #ERROR
-        </button>
+          <div className="w-full px-2 py-1 text-left text-red-500 hover:text-red-600 hover:bg-red-50">
+            #ERROR
+          </div>
+        </Button>
       );
     }
-
     return this.props.children;
   }
 }
