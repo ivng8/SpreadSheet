@@ -20,6 +20,13 @@ export class SpreadSheet {
 
   public insertRow(index: number): void {
     const letters = Array.from(this.grid.keys());
+    let keys: String[] = [];
+    for (let j = 0; j < letters.length; j += 1) {
+      const [_, letter] = letters[j].match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (!keys.includes(letter)) {
+        keys.push(letter);
+      }
+    }
     for (let i = 0; i < letters.length; i += 1) {
       this.grid.set(index + '', new Director().makeCell(index + '', '', this));
     }
@@ -38,7 +45,7 @@ export class SpreadSheet {
   }
 
   public clearCell(address: string): void {
-    this.grid.get(address).updateContents('');
+    this.getCell(address).updateContents('');
   }
 
   public recalculate(): void {
