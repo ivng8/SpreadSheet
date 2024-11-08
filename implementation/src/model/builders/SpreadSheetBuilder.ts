@@ -11,7 +11,7 @@ export class SpreadSheetBuilder implements IBuilder {
   public getProduct() {
     for (let i = 0; i < 25; i += 1) {
        for (let j = 0; j < 50 ; j += 1) {
-        this.map.push(new Cell())
+        this.map.set('', new Cell());
        }
     }
   }
