@@ -45,6 +45,16 @@ export class SpreadSheet {
 
   }
 
+  private numberToColumnLetter(num: number): string {
+    let result = '';
+    while (num > 0) {
+      num--;
+      result = String.fromCharCode('A'.charCodeAt(0) + (num % 26)) + result;
+      num = Math.floor(num / 26);
+    }
+    return result;
+  }
+
   public display(): void {
 
   }
