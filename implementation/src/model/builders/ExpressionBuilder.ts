@@ -61,8 +61,13 @@ export class ExpressionBuilder implements IBuilder {
       this.expression = new EmptyExpression();
       return;
     }
-    this.checkParentheses();
-    this.simpleExpression();
+    if (this.context.charAt(0) === '=') {
+      this.context = this.context.substring(1, this.context.length);
+      this.checkParentheses();
+      this.simpleExpression();
+    } else {
+      this.expression = new StringConstant(this.context);
+    }
   }
 
   /**
@@ -71,13 +76,13 @@ export class ExpressionBuilder implements IBuilder {
   private simpleExpression(): void {
     if (/^-?\d*\.?\d+$/.test(this.context)) {
       this.expression = new NumericConstant(parseFloat(this.context));
-    } else if (/^[A-Za-z]+$/.test(this.context)) {
-      this.expression = new StringConstant(this.context);
-    } else if (/^[A-Za-z]+\d+$/.test(this.context)) {
+    } else if (/^REF\([A-Za-z]+\d+\)$/.test(this.context)) {
       this.expression = new CellReference(this.context, this.sheet);
     } else if (/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/.test(this.context)) {
       const [func, start, end] = this.context.match(/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/)!;
       this.expression = new RangeExpression(func, start, end, this.sheet, this.cell);
+    } else {
+      this.expression = new StringConstant(this.context);
     }
   }
 
@@ -147,12 +152,12 @@ export class ExpressionBuilder implements IBuilder {
    */
   private generalFormula(sign: string, i: number): IExpression {
     const left: IExpression = new Director().makeExpression(
-      this.context.substring(0, i),
+      '=' + this.context.substring(0, i),
       this.sheet,
       this.cell
     );
     const right: IExpression = new Director().makeExpression(
-      this.context.substring(i + 1, this.context.length),
+      '=' + this.context.substring(i + 1, this.context.length),
       this.sheet,
       this.cell
     );
@@ -211,7 +216,7 @@ export class ExpressionBuilder implements IBuilder {
   private goDownLevel(): void {
     if (this.context.charAt(0) === '(')
       this.expression = new Director().makeExpression(
-        this.context.substring(1, this.context.length - 1),
+        '=' + this.context.substring(1, this.context.length - 1),
         this.sheet,
         this.cell
       );

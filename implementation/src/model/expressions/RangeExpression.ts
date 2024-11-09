@@ -4,6 +4,7 @@ import { SpreadSheet } from 'model/components/SpreadSheet';
 import { MixedValues } from 'model/errors/MixedValues';
 import { IllegalOperands } from 'model/errors/IllegalOperands';
 import { InvalidRange } from 'model/errors/InvalidRange';
+import { InvalidExpression } from 'model/errors/InvalidExpression';
 
 /**
  * represents an aggregate function
@@ -88,6 +89,9 @@ export class RangeExpression implements IExpression {
           this.cell.catchErrors(new IllegalOperands());
           return null;
         }
+      default:
+        this.cell.catchErrors(new InvalidExpression());
+        return null;
     }
   }
 
