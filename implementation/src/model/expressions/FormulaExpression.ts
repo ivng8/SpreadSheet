@@ -4,12 +4,22 @@ import { Cell } from 'model/components/Cell';
 import { MixedValues } from 'model/errors/MixedValues';
 import { IllegalOperands } from 'model/errors/IllegalOperands';
 
+/**
+ * represents a formula expression which is two operands and an operator
+ */
 export class FormulaExpression implements IExpression {
   private operator: Operator;
   private left: IExpression;
   private right: IExpression;
   private cell: Cell;
 
+  /**
+   * constructor of a FormulaExpression
+   * @param operator the operator
+   * @param left the left operand
+   * @param right the right operand
+   * @param cell the cell it belongs to
+   */
   public constructor(operator: Operator, left: IExpression, right: IExpression, cell: Cell) {
     this.operator = operator;
     this.left = left;
@@ -58,6 +68,10 @@ export class FormulaExpression implements IExpression {
     }
   }
 
+  /**
+   * checks that both operands are arithmetic 
+   * @returns boolean
+   */
   private checkBothNumbers(): boolean {
     return typeof this.left.evaluate() === 'number' && typeof this.right.evaluate() === 'number';
   }

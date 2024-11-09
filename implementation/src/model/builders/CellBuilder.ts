@@ -22,10 +22,6 @@ export class CellBuilder implements IBuilder {
     this.sheet = reference;
   }
 
-  /**
-   * creates an instance of the cell and returns it
-   * @returns the cell using context in the builder 
-   */
   public getProduct(): Cell {
     let cell: Cell = new Cell(this.address, this.input, this.sheet);
     // let history: VersionHistory = new VersionHistory();

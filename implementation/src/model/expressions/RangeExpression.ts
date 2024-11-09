@@ -5,6 +5,9 @@ import { MixedValues } from 'model/errors/MixedValues';
 import { IllegalOperands } from 'model/errors/IllegalOperands';
 import { InvalidRange } from 'model/errors/InvalidRange';
 
+/**
+ * represents an aggregate function
+ */
 export class RangeExpression implements IExpression {
   private func: string;
   private start: string;
@@ -12,6 +15,14 @@ export class RangeExpression implements IExpression {
   private reference: SpreadSheet;
   private cell: Cell;
 
+  /**
+   * constructor for a Range Expression
+   * @param func the aggregate function
+   * @param start the left bound
+   * @param end the right bound
+   * @param reference the SpreadSheet it is referencing
+   * @param cell the cell it belongs to
+   */
   public constructor(func: string, start: string, end: string, reference: SpreadSheet, cell: Cell) {
     this.func = func;
     this.start = start;
@@ -80,6 +91,11 @@ export class RangeExpression implements IExpression {
     }
   }
 
+  /**
+   * converts a column letter to a respective number (ex: C -> 3)
+   * @param column the char(s)
+   * @returns a number
+   */
   private columnLetterToNumber(column: string): number {
     let result = 0;
     for (let i = 0; i < column.length; i++) {
@@ -89,6 +105,11 @@ export class RangeExpression implements IExpression {
     return result;
   }
 
+  /**
+   * converts a number to a string in context of a spreadsheet
+   * @param num the number
+   * @returns char(s) that represents the number
+   */
   private numberToColumnLetter(num: number): string {
     let result = '';
     while (num > 0) {

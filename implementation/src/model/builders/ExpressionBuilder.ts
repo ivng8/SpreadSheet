@@ -14,12 +14,21 @@ import { NullOperand } from '../errors/NullOperand';
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import { Cell } from 'model/components/Cell';
 
+/**
+ * Construsts an expression inspired by the Composite pattern where
+ * a parsed expression gets separated into a tree-like structure
+ */
 export class ExpressionBuilder implements IBuilder {
   private expression: IExpression;
   private context: string;
   private sheet: SpreadSheet;
   private cell: Cell;
 
+  /**
+   * constructor for the expression builder
+   * @param reference the spreadsheet that the expression potentially references
+   * @param cell the cell that the expression belongs to
+   */
   constructor(reference: SpreadSheet, cell: Cell) {
     this.expression = new EmptyExpression();
     this.context = '';
@@ -43,6 +52,10 @@ export class ExpressionBuilder implements IBuilder {
     this.makeExpression();
   }
 
+  /**
+   * begins the process of mutating the expression by parsing the context
+   * @returns void
+   */
   private makeExpression(): void {
     if (!this.context) {
       this.expression = new EmptyExpression();
@@ -52,6 +65,9 @@ export class ExpressionBuilder implements IBuilder {
     this.simpleExpression();
   }
 
+  /**
+   * uses regex patterns to find expressions past PEMDAS operators
+   */
   private simpleExpression(): void {
     if (/^-?\d*\.?\d+$/.test(this.context)) {
       this.expression = new NumericConstant(parseFloat(this.context));
@@ -65,6 +81,11 @@ export class ExpressionBuilder implements IBuilder {
     }
   }
 
+  /**
+   * checks that parentheses are written correctly and determines what parts
+   * of the expression are contained by parentheses
+   * @returns void
+   */
   private checkParentheses(): void {
     let parenCounter: number = 0;
     let skip_indicies: number[] = [];
@@ -92,6 +113,12 @@ export class ExpressionBuilder implements IBuilder {
     this.checkOperators(skip_indicies);
   }
 
+  /**
+   * looks for operators following PEMDAS precedence that are outside of 
+   * parentheses in order to create a tree-structure that will evaluate correctly
+   * @param skip_indicies the indicies of characters that are encapsulated in parentheses
+   * @returns void
+   */
   private checkOperators(skip_indicies: number[]): void {
     for (let i = 0; i < this.context.length; i += 1) {
       if (skip_indicies.includes(i)) {
@@ -112,6 +139,12 @@ export class ExpressionBuilder implements IBuilder {
     this.goDownLevel();
   }
 
+  /**
+   * creates a FormulaExpression given a sign and the index of its location
+   * @param sign the character of the operator
+   * @param i the index of the operator
+   * @returns either a FormulaExpression or an Error
+   */
   private generalFormula(sign: string, i: number): IExpression {
     const left: IExpression = new Director().makeExpression(
       this.context.substring(0, i),
@@ -162,10 +195,19 @@ export class ExpressionBuilder implements IBuilder {
     return new FormulaExpression(oper, left, right, this.cell);
   }
 
+  /**
+   * returns true if either of the given expressions evaluate to a string
+   * @param left the first expression
+   * @param right the second expression
+   * @returns a boolean
+   */
   private stringCompute(left: IExpression, right: IExpression): boolean {
     return typeof left.evaluate() === 'string' || typeof right.evaluate() === 'string';
   }
 
+  /**
+   * downsizes the parsing of an expression by entering the parentheses
+   */
   private goDownLevel(): void {
     if (this.context.charAt(0) === '(')
       this.expression = new Director().makeExpression(
