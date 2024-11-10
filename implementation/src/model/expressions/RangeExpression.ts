@@ -56,39 +56,20 @@ export class RangeExpression implements IExpression {
     }
 
     const allNumbers = values.every(value => typeof value === 'number');
-    const allStrings = values.every(value => typeof value === 'string');
+    if (!allNumbers) {
+      this.cell.catchErrors(new IllegalOperands());
+      return null;
+    }
 
     switch (this.func) {
       case 'SUM':
-        if (allNumbers) {
-          return values.reduce((sum, value) => sum + value, 0);
-        } else if (allStrings) {
-          return values.reduce((sum, value) => sum + Number(value), 0);
-        } else {
-          this.cell.catchErrors(new MixedValues());
-          return null;
-        }
+        return values.reduce((sum, value) => sum + value, 0);
       case 'AVG':
-        if (allNumbers) {
-          return values.reduce((sum, value) => sum + value, 0) / values.length;
-        } else {
-          this.cell.catchErrors(new IllegalOperands());
-          return null;
-        }
+        return values.reduce((sum, value) => sum + value, 0) / values.length;
       case 'MIN':
-        if (allNumbers) {
-          return Math.min(...values);
-        } else {
-          this.cell.catchErrors(new IllegalOperands());
-          return null;
-        }
+        return Math.min(...values);
       case 'MAX':
-        if (allNumbers) {
-          return Math.max(...values);
-        } else {
-          this.cell.catchErrors(new IllegalOperands());
-          return null;
-        }
+        return Math.max(...values);
       default:
         this.cell.catchErrors(new InvalidExpression());
         return null;
