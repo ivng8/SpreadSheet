@@ -1,7 +1,6 @@
 import { Cell } from 'model/components/Cell';
 import { IExpression } from '../interfaces/IExpression';
 import { SpreadSheet } from 'model/components/SpreadSheet';
-import { MixedValues } from 'model/errors/MixedValues';
 import { IllegalOperands } from 'model/errors/IllegalOperands';
 import { InvalidRange } from 'model/errors/InvalidRange';
 import { InvalidExpression } from 'model/errors/InvalidExpression';

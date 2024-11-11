@@ -9,7 +9,6 @@ import { IError } from '../interfaces/IError';
  * represents a cell in a spreadsheet
  */
 export class Cell {
-  private address: string;
   private input: string;
   private expression: IExpression;
   private versionHistory: VersionHistory;
@@ -17,23 +16,13 @@ export class Cell {
 
   /**
    * constructor of a cell
-   * @param address the column and row of the cell
    * @param input the raw user input in the cell
    * @param reference the spreadsheet the cell is contained in
    */
-  public constructor(address: string, input: string, reference: SpreadSheet) {
-    this.address = address;
+  public constructor(input: string, reference: SpreadSheet) {
     this.input = input;
     this.sheet = reference;
     this.expression = new Director().makeExpression(this.input, this.sheet, this);
-  }
-
-  /**
-   * gets the unique identifier of the cell
-   * @returns a string representing the above
-   */
-  public getAddress(): string {
-    return this.address;
   }
 
   /**

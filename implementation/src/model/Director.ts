@@ -14,14 +14,13 @@ export class Director {
 
   /**
    * constructs a cell using the CellBuilder
-   * @param address the address of the Cell in the spreadsheet
    * @param input the user input inside of the cell
    * @param reference the spreadsheet that the cell is contained in
    * @returns a cell
    */
-  public makeCell(address: string, input: string, reference: SpreadSheet): Cell {
+  public makeCell(input: string, reference: SpreadSheet): Cell {
     let builder: IBuilder = new CellBuilder(reference);
-    let text: string[] = [address, input];
+    let text: string[] = [input];
     builder.setContext(text);
     let cell: Cell = builder.getProduct();
     builder.reset();
