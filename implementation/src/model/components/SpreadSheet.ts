@@ -1,7 +1,6 @@
 import { Cell } from './Cell';
 import { Director } from '../Director';
 import { User } from './User';
-import { PointerOff } from 'lucide-react';
 
 /**
  * represents the table of a spreadsheet application
@@ -51,7 +50,6 @@ export class SpreadSheet {
     for (let i = 0; i < keys.length; i += 1) {
     this.grid.set(keys[i], new Director().makeCell('', this));
     }
-    // updated references
   }
 
   /**
@@ -67,7 +65,8 @@ export class SpreadSheet {
    * @param index the index at which the column is to be inserted
    */
   public insertColumn(index: number): void {
-
+    this.updateReferences(index, 1, 0);
+    
   }
 
   /**
