@@ -20,7 +20,7 @@ export class SpreadSheetBuilder implements IBuilder {
     for (let i = 0; i < 25; i += 1) {
        for (let j = 0; j < 50 ; j += 1) {
         let index: string = this.numberToColumnLetter(i) + j;
-        this.map.set(index, new Cell(index, this.context.get(index) || '', this.spreadsheet));
+        this.map.set(index, new Cell(this.context.get(index) || '', this.spreadsheet));
        }
     }
     return this.spreadsheet;
