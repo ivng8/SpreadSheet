@@ -1,6 +1,6 @@
 import { Cell } from './Cell';
 import { Director } from '../Director';
-import { User } from './User';
+// import { User } from './User';
 
 /**
  * represents the table of a spreadsheet application
@@ -38,18 +38,22 @@ export class SpreadSheet {
     this.updateReferences(index, 0, 1);
     const digits = Array.from(this.grid.keys());
     let keys: string[] = [];
+    let ans: Map<string, Cell> = new Map<string, Cell>;
     for (let i = 0; i < digits.length; i += 1) {
       const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
       if (parseInt(digit) >= index) {
         if (parseInt(digit) === index) {
           keys.push(digits[i]);
         }
-        this.grid.set(letter + (digit + 1), this.grid.get(digits[i])!);
+        ans.set(letter! + (parseInt(digit) + 1), this.grid.get(digits[i])!);
+      } else {
+        ans.set(digits[i], this.grid.get(digits[i])!);
       }
     }
     for (let i = 0; i < keys.length; i += 1) {
-    this.grid.set(keys[i], new Director().makeCell('', this));
+      ans.set(keys[i], new Director().makeCell('', this));
     }
+    this.grid = ans;
   }
 
   /**
@@ -57,7 +61,18 @@ export class SpreadSheet {
    * @param index the index at which the row is to be deleted
    */
   public deleteRow(index: number): void {
-
+    this.updateReferences(index, 0, -1);
+    const digits = Array.from(this.grid.keys());
+    let ans: Map<string, Cell> = new Map<string, Cell>;
+    for (let i = 0; i < digits.length; i += 1) {
+      const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (parseInt(digit) > index) {
+        ans.set(letter! + (parseInt(digit) - 1), this.grid.get(digits[i])!);
+      } else {
+        ans.set(digits[i], this.grid.get(digits[i])!);
+      }
+    }
+    this.grid = ans;
   }
 
   /**
@@ -66,7 +81,25 @@ export class SpreadSheet {
    */
   public insertColumn(index: number): void {
     this.updateReferences(index, 1, 0);
-    
+    const digits = Array.from(this.grid.keys());
+    let keys: string[] = [];
+    let ans: Map<string, Cell> = new Map<string, Cell>;
+    for (let i = 0; i < digits.length; i += 1) {
+      const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (this.columnLetterToNumber(letter!) >= index) {
+        if (this.columnLetterToNumber(letter!) === index) {
+          keys.push(digits[i]);
+        }
+        ans.set(this.numberToColumnLetter(this.columnLetterToNumber(letter!) + 1) + 
+        digit, this.grid.get(digits[i])!);
+      } else {
+        ans.set(digits[i], this.grid.get(digits[i])!);
+      }
+    }
+    for (let i = 0; i < keys.length; i += 1) {
+      ans.set(keys[i], new Director().makeCell('', this));
+    }
+    this.grid = ans;
   }
 
   /**
@@ -74,7 +107,19 @@ export class SpreadSheet {
    * @param index the index at which the column is to be deleted
    */
   public deleteColumn(index: number): void {
-
+    this.updateReferences(index, -1, 0);
+    const digits = Array.from(this.grid.keys());
+    let ans: Map<string, Cell> = new Map<string, Cell>;
+    for (let i = 0; i < digits.length; i += 1) {
+      const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (this.columnLetterToNumber(letter!) > index) {
+        ans.set(this.numberToColumnLetter(this.columnLetterToNumber(letter!) - 1) + 
+        digit, this.grid.get(digits[i])!);
+      } else {
+        ans.set(digits[i], this.grid.get(digits[i])!);
+      }
+    }
+    this.grid = ans;
   }
 
   /**
@@ -89,7 +134,10 @@ export class SpreadSheet {
    * refreshes the table
    */
   public recalculate(): void {
-
+    const keys = Array.from(this.grid.keys());
+    for (let i = 0; i < keys.length; i += 1) {
+      this.grid.get(keys[i])?.getValue();
+    }
   }
 
   private updateReferences(point: number, x: number, y: number): void {
@@ -115,6 +163,15 @@ export class SpreadSheet {
         this.grid.get(digits[i])!.updateContents(curr);
       }
     }
+  }
+
+  private columnLetterToNumber(column: string): number {
+    let result = 0;
+    for (let i = 0; i < column.length; i++) {
+      result *= 26;
+      result += column.charCodeAt(i) - 'A'.charCodeAt(0) + 1;
+    }
+    return result;
   }
 
   /**
