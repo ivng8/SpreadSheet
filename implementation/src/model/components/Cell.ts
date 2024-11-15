@@ -1,8 +1,10 @@
 import { IExpression } from '../interfaces/IExpression';
-import { VersionHistory } from "./version/VersionHistory";
+import { VersionHistory } from "model/version/VersionHistory";
 import { Director } from '../Director';
 import { SpreadSheet } from './SpreadSheet';
 import { IError } from '../interfaces/IError';
+import { VersionEntry } from 'model/version/VersionEntry';
+import { User } from './User';
 
 /**
  * represents a cell in a spreadsheet
@@ -21,6 +23,7 @@ export class Cell {
   public constructor(input: string, reference: SpreadSheet) {
     this.input = input;
     this.sheet = reference;
+    this.versionHistory = new VersionHistory();
     this.expression = new Director().makeExpression(this.input, this.sheet, this);
   }
 
@@ -37,10 +40,10 @@ export class Cell {
    * thus affecting the expression and the versioning of the cell
    * @param newText the new input
    */
-  public updateContents(newText: string): void {
+  public updateContents(newText: string, user: User): void {
     this.input = newText;
     this.expression = new Director().makeExpression(this.input, this.sheet, this);
-    this.versionHistory.addEntry(new VersionEntry());
+    this.versionHistory.addEntry(new VersionEntry(newText, user));
   }
 
   /**
