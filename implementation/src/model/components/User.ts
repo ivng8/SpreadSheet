@@ -14,4 +14,8 @@ export class User {
         this.name = name;
         this.email = email;
     }
+
+    public getName(): string {
+        return this.name;
+    }
 }
