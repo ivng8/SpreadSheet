@@ -1,5 +1,6 @@
 import { Cell } from './Cell';
 import { Director } from '../Director';
+import { MergeConflictResolver } from 'model/conflicts/MergeConflictResolver';
 // import { User } from './User';
 
 /**
@@ -187,5 +188,10 @@ export class SpreadSheet {
       num = Math.floor(num / 26);
     }
     return result;
+  }
+
+  public import(sheet: SpreadSheet): void {
+    const newGrid = new CollaborationManager(this, sheet).resolve();
+    this.recalculate();
   }
 }
