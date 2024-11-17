@@ -18,7 +18,7 @@ describe('ExpressionBuilder', (): void => {
   beforeEach(() => {
     spreadsheet = new SpreadSheet(new Map <string, Cell>);
     director = new Director();
-    cell = new Cell('A1', '', spreadsheet);
+    cell = new Cell('', spreadsheet);
   });
 
   describe('Basic Expressions', () => {
