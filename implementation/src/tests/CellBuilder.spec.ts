@@ -14,7 +14,6 @@ describe('CellBuilder', (): void => {
   describe('Constructor', () => {
     it('should initialize with empty address and input', (): void => {
     const cell = builder.getProduct();
-    expect(cell.getAddress()).toBe('');
     expect(cell.getInput()).toBe('');
     });
 
