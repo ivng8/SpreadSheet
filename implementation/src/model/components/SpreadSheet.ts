@@ -1,6 +1,7 @@
 import { Cell } from './Cell';
 import { Director } from '../Director';
 import { MergeConflictResolver } from 'model/conflicts/MergeConflictResolver';
+import { CollaborationManager } from './CollaborationManager';
 // import { User } from './User';
 
 /**
@@ -29,6 +30,11 @@ export class SpreadSheet {
       throw new Error(`Cell at ${address} is empty`);
     }
     return cell;
+  }
+
+  public copyGrid(): Map<string, Cell> {
+    const ans = this.grid;
+    return ans;
   }
 
   /**
@@ -190,8 +196,16 @@ export class SpreadSheet {
     return result;
   }
 
-  public import(sheet: SpreadSheet): void {
-    const newGrid = new CollaborationManager(this, sheet).resolve();
+  public import(sheet: SpreadSheet, originPoint: string): void {
+    const [letter, digit] = originPoint.match(/^([A-Za-z]+)(\d+)$/)!;
+    for (let i = 1; i < this.columnLetterToNumber(letter); i += 1) {
+      sheet.insertColumn(0);
+    }
+    for (let j = 1; j < parseInt(digit); j += 1) {
+      sheet.insertRow(0);
+    }
+    const newGrid = new CollaborationManager(this, sheet).merge();
+    this.grid = newGrid;
     this.recalculate();
   }
 }
