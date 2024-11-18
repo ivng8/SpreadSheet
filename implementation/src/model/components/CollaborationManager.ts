@@ -12,10 +12,10 @@ export class CollaborationManager {
         this.import2 = import2;
     }
 
-    public merge(): Map<string, Cell> {
+    async merge(): Promise<Map<string, Cell>> {
         let conflicts: MergeConflict[] = this.findConflicts();
         let resolver: MergeConflictResolver = new MergeConflictResolver(conflicts);
-        
+        resolver.finish 
     }
 
     private findConflicts(): MergeConflict[] {
