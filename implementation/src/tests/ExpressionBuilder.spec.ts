@@ -60,16 +60,16 @@ describe('ExpressionBuilder', (): void => {
     });
 
     it('should handle cell references', (): void => {
-      const expr = director.makeExpression('=REF(A1)', spreadsheet, cell);
+      const expr = director.makeExpression('=A1', spreadsheet, cell);
       expect(expr.evaluate()).toBe(42);
     });
 
     it('should handle nested cell references', (): void => {
       const nestedSheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=REF(B1)', spreadsheet)],
+        ['A1', new Cell('=B1', spreadsheet)],
         ['B1', new Cell('42', spreadsheet)]
       ]));
-      const expr = director.makeExpression('=REF(A1)', nestedSheet, cell);
+      const expr = director.makeExpression('=A1', nestedSheet, cell);
       expect(expr.evaluate()).toBe(42);
     })
   });
