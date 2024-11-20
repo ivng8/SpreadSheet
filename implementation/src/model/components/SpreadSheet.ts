@@ -2,14 +2,15 @@ import { Cell } from './Cell';
 import { Director } from '../Director';
 import { MergeConflictResolver } from 'model/conflicts/MergeConflictResolver';
 import { CollaborationManager } from './CollaborationManager';
-// import { User } from './User';
+import { Utility } from 'model/Utility';
+import { User } from './User';
 
 /**
  * represents the table of a spreadsheet application
  */
 export class SpreadSheet {
   private grid: Map<string, Cell>;
-  //private users : User = [];
+  private resolver: MergeConflictResolver;
 
   /**
    * constructor for the spreadsheet
@@ -17,6 +18,7 @@ export class SpreadSheet {
    */
   public constructor(grid: Map<string, Cell>) {
     this.grid = grid;
+    this.resolver = new MergeConflictResolver();
   }
 
   /**
@@ -41,8 +43,8 @@ export class SpreadSheet {
    * inserts a blank row into the spreadsheet and updates the other addresses and references
    * @param index the index at which the row is to be inserted
    */
-  public insertRow(index: number): void {
-    this.updateReferences(index, 0, 1);
+  public insertRow(index: number, user: User): void {
+    this.updateReferences(index, 0, 1, user);
     const digits = Array.from(this.grid.keys());
     let keys: string[] = [];
     let ans: Map<string, Cell> = new Map<string, Cell>;
@@ -67,8 +69,8 @@ export class SpreadSheet {
    * deletes a row and updates the other addresses and references
    * @param index the index at which the row is to be deleted
    */
-  public deleteRow(index: number): void {
-    this.updateReferences(index, 0, -1);
+  public deleteRow(index: number, user: User): void {
+    this.updateReferences(index, 0, -1, user);
     const digits = Array.from(this.grid.keys());
     let ans: Map<string, Cell> = new Map<string, Cell>;
     for (let i = 0; i < digits.length; i += 1) {
@@ -86,18 +88,18 @@ export class SpreadSheet {
    * inserts a blank column into the spreadsheet and updates the other addresses and references
    * @param index the index at which the column is to be inserted
    */
-  public insertColumn(index: number): void {
-    this.updateReferences(index, 1, 0);
+  public insertColumn(index: number, user: User): void {
+    this.updateReferences(index, 1, 0, user);
     const digits = Array.from(this.grid.keys());
     let keys: string[] = [];
     let ans: Map<string, Cell> = new Map<string, Cell>;
     for (let i = 0; i < digits.length; i += 1) {
       const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (this.columnLetterToNumber(letter!) >= index) {
-        if (this.columnLetterToNumber(letter!) === index) {
+      if (Utility.columnLetterToNumber(letter!) >= index) {
+        if (Utility.columnLetterToNumber(letter!) === index) {
           keys.push(digits[i]);
         }
-        ans.set(this.numberToColumnLetter(this.columnLetterToNumber(letter!) + 1) + 
+        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(letter!) + 1) + 
         digit, this.grid.get(digits[i])!);
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
@@ -113,14 +115,14 @@ export class SpreadSheet {
    * deletes a column and updates the other addresses and references
    * @param index the index at which the column is to be deleted
    */
-  public deleteColumn(index: number): void {
-    this.updateReferences(index, -1, 0);
+  public deleteColumn(index: number, user: User): void {
+    this.updateReferences(index, -1, 0, user);
     const digits = Array.from(this.grid.keys());
     let ans: Map<string, Cell> = new Map<string, Cell>;
     for (let i = 0; i < digits.length; i += 1) {
       const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (this.columnLetterToNumber(letter!) > index) {
-        ans.set(this.numberToColumnLetter(this.columnLetterToNumber(letter!) - 1) + 
+      if (Utility.columnLetterToNumber(letter!) > index) {
+        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(letter!) - 1) + 
         digit, this.grid.get(digits[i])!);
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
@@ -133,8 +135,8 @@ export class SpreadSheet {
    * clears the contents of a cell
    * @param address the address of the cell to be cleared
    */
-  public clearCell(address: string): void {
-    this.getCell(address).updateContents('');
+  public clearCell(address: string, user: User): void {
+    this.getCell(address).updateContents('', user);
   }
 
   /**
@@ -147,7 +149,7 @@ export class SpreadSheet {
     }
   }
 
-  private updateReferences(point: number, x: number, y: number): void {
+  private updateReferences(point: number, x: number, y: number, user: User): void {
     const digits = Array.from(this.grid.keys());
     const refRegex = /REF\(([A-Za-z]+\d+)\)/g;
     for (let i = 0; i < digits.length; i += 1) {
@@ -160,51 +162,28 @@ export class SpreadSheet {
             return `REF(${column}${row + y})`;
           }
         } else {
-          if (column >= this.numberToColumnLetter(point)) {
-            return `REF(${this.numberToColumnLetter(point + x)}${row})`;
+          if (column >= Utility.numberToColumnLetter(point)) {
+            return `REF(${Utility.numberToColumnLetter(point + x)}${row})`;
           }
         }
         return match;
       });
       if (!(curr === this.grid.get(digits[i])!.getInput())) {
-        this.grid.get(digits[i])!.updateContents(curr);
+        this.grid.get(digits[i])!.updateContents(curr, user);
       }
     }
   }
 
-  private columnLetterToNumber(column: string): number {
-    let result = 0;
-    for (let i = 0; i < column.length; i++) {
-      result *= 26;
-      result += column.charCodeAt(i) - 'A'.charCodeAt(0) + 1;
-    }
-    return result;
-  }
-
-  /**
-   * converts a number to char(s) in context of a spreadsheet (ex: 3 -> C)
-   * @param num the number
-   * @returns a char(s) in case of 27 -> AA so it's not always single letter
-   */
-  private numberToColumnLetter(num: number): string {
-    let result = '';
-    while (num > 0) {
-      num--;
-      result = String.fromCharCode('A'.charCodeAt(0) + (num % 26)) + result;
-      num = Math.floor(num / 26);
-    }
-    return result;
-  }
-
-  public import(sheet: SpreadSheet, originPoint: string): void {
+  async import(filePath: string, originPoint: string, user: User): Promise<void> {
+    const sheet = Utility.xlsxImport(filePath);
     const [letter, digit] = originPoint.match(/^([A-Za-z]+)(\d+)$/)!;
-    for (let i = 1; i < this.columnLetterToNumber(letter); i += 1) {
-      sheet.insertColumn(0);
+    for (let i = 1; i < Utility.columnLetterToNumber(letter); i += 1) {
+      sheet.insertColumn(0, user);
     }
     for (let j = 1; j < parseInt(digit); j += 1) {
-      sheet.insertRow(0);
+      sheet.insertRow(0, user);
     }
-    const newGrid = new CollaborationManager(this, sheet).merge();
+    const newGrid = await new CollaborationManager(this, sheet).merge(this.resolver);
     this.grid = newGrid;
     this.recalculate();
   }

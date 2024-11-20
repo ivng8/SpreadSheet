@@ -4,6 +4,7 @@ import { SpreadSheet } from 'model/components/SpreadSheet';
 import { IllegalOperands } from 'model/errors/IllegalOperands';
 import { InvalidRange } from 'model/errors/InvalidRange';
 import { InvalidExpression } from 'model/errors/InvalidExpression';
+import { Utility } from 'model/Utility';
 
 /**
  * represents an aggregate function
@@ -36,12 +37,12 @@ export class RangeExpression implements IExpression {
     const [column1, row1] = this.start.match(/^[A-Z]+[0-9]+$/)!;
     const [column2, row2] = this.end.match(/^[A-Z]+[0-9]+$/)!;
     for (
-      let i = this.columnLetterToNumber(column1);
-      i < this.columnLetterToNumber(column2);
+      let i = Utility.columnLetterToNumber(column1);
+      i < Utility.columnLetterToNumber(column2);
       i += 1
     ) {
       for (let j = parseInt(row1); j < parseInt(row2); j += 1) {
-        let value: unknown = this.reference.getCell(this.numberToColumnLetter(i) + j).getValue();
+        let value: unknown = this.reference.getCell(Utility.numberToColumnLetter(i) + j).getValue();
         if (value === null) {
           this.cell.catchErrors(new InvalidRange());
           return null;
@@ -73,35 +74,6 @@ export class RangeExpression implements IExpression {
         this.cell.catchErrors(new InvalidExpression());
         return null;
     }
-  }
-
-  /**
-   * converts a column letter to a respective number (ex: C -> 3)
-   * @param column the char(s)
-   * @returns a number
-   */
-  private columnLetterToNumber(column: string): number {
-    let result = 0;
-    for (let i = 0; i < column.length; i++) {
-      result *= 26;
-      result += column.charCodeAt(i) - 'A'.charCodeAt(0) + 1;
-    }
-    return result;
-  }
-
-  /**
-   * converts a number to a string in context of a spreadsheet
-   * @param num the number
-   * @returns char(s) that represents the number
-   */
-  private numberToColumnLetter(num: number): string {
-    let result = '';
-    while (num > 0) {
-      num--;
-      result = String.fromCharCode('A'.charCodeAt(0) + (num % 26)) + result;
-      num = Math.floor(num / 26);
-    }
-    return result;
   }
 
   public display(): string {
