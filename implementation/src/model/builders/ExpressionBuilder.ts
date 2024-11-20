@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IBuilder } from '../interfaces/IBuilder';
 import { IExpression } from '../interfaces/IExpression';
 import { EmptyExpression } from '../expressions/EmptyExpression';
@@ -66,7 +65,8 @@ export class ExpressionBuilder implements IBuilder {
       this.context = this.context.substring(1, this.context.length);
       this.checkParentheses();
       this.simpleExpression();
-    } else {
+    }
+    if (this.expression instanceof EmptyExpression) {
       this.expression = new StringConstant(this.context);
     }
   }
@@ -84,8 +84,6 @@ export class ExpressionBuilder implements IBuilder {
     } else if (/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/.test(this.context)) {
       const [func, start, end] = this.context.match(/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/)!;
       this.expression = new RangeExpression(func, start, end, this.sheet, this.cell);
-    } else {
-      this.expression = new StringConstant(this.context);
     }
   }
 

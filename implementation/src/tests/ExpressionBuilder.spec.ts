@@ -54,22 +54,22 @@ describe('ExpressionBuilder', (): void => {
   describe('Cell References', () => {
     beforeEach(() => {
       spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('42', spreadsheet)]
+        ['A1', new Cell('=42', spreadsheet)]
       ]));
       cell = new Cell('', spreadsheet);
     });
 
     it('should handle cell references', (): void => {
-      const expr = director.makeExpression('=A1', spreadsheet, cell);
+      const expr = director.makeExpression('=REF(A1)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(42);
     });
 
     it('should handle nested cell references', (): void => {
       const nestedSheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=B1', spreadsheet)],
-        ['B1', new Cell('42', spreadsheet)]
+        ['B1', new Cell('=42', spreadsheet)],
+        ['A1', new Cell('=REF(B1)', spreadsheet)]
       ]));
-      const expr = director.makeExpression('=A1', nestedSheet, cell);
+      const expr = director.makeExpression('=REF(A1)', nestedSheet, cell);
       expect(expr.evaluate()).toBe(42);
     })
   });
@@ -77,8 +77,8 @@ describe('ExpressionBuilder', (): void => {
   describe('Range Expressions', () => {
     it('should sum a range of expressions when SUM is used', (): void => {
       spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('2', spreadsheet)],
-        ['A2', new Cell('3', spreadsheet)]
+        ['A1', new Cell('=2', spreadsheet)],
+        ['A2', new Cell('=3', spreadsheet)]
       ]));
       const expr = director.makeExpression('=SUM(A1:A2)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(5);
@@ -86,10 +86,10 @@ describe('ExpressionBuilder', (): void => {
 
     it('should calculate average of a range of expressions when AVG is used', (): void => {
       spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('2', spreadsheet)],
-        ['A2', new Cell('10', spreadsheet)],
-        ['A3', new Cell('5', spreadsheet)],
-        ['A4', new Cell('3', spreadsheet)]
+        ['A1', new Cell('=2', spreadsheet)],
+        ['A2', new Cell('=10', spreadsheet)],
+        ['A3', new Cell('=5', spreadsheet)],
+        ['A4', new Cell('=3', spreadsheet)]
       ]));
       const expr = director.makeExpression('=AVG(A1:A4)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(5);
@@ -97,10 +97,10 @@ describe('ExpressionBuilder', (): void => {
 
     it('should give the min of a range of expressions when MIN is used', (): void => {
       spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('2', spreadsheet)],
-        ['A2', new Cell('10', spreadsheet)],
-        ['A3', new Cell('5', spreadsheet)],
-        ['A4', new Cell('3', spreadsheet)]
+        ['A1', new Cell('=2', spreadsheet)],
+        ['A2', new Cell('=10', spreadsheet)],
+        ['A3', new Cell('=5', spreadsheet)],
+        ['A4', new Cell('=3', spreadsheet)]
       ]));
       const expr = director.makeExpression('=MIN(A1:A4)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(2);
@@ -108,10 +108,10 @@ describe('ExpressionBuilder', (): void => {
 
     it('should give the max of a range of expressions when MAX is used', (): void => {
       spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('2', spreadsheet)],
-        ['A2', new Cell('10', spreadsheet)],
-        ['A3', new Cell('5', spreadsheet)],
-        ['A4', new Cell('3', spreadsheet)]
+        ['A1', new Cell('=2', spreadsheet)],
+        ['A2', new Cell('=10', spreadsheet)],
+        ['A3', new Cell('=5', spreadsheet)],
+        ['A4', new Cell('=3', spreadsheet)]
       ]));
       const expr = director.makeExpression('=MAX(A1:A4)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(10);
@@ -127,26 +127,31 @@ describe('ExpressionBuilder', (): void => {
 
     it('should evaluate to 2 when the expression is `5-3`', (): void => {
       const expr = director.makeExpression('=5-3', spreadsheet, cell);
+      expect(expr).toBeInstanceOf(FormulaExpression);
       expect(expr.evaluate()).toBe(2);
     });
 
     it('should evaluate to 10 when the expression is `2*5`', (): void => {
       const expr = director.makeExpression('=2*5', spreadsheet, cell);
+      expect(expr).toBeInstanceOf(FormulaExpression);
       expect(expr.evaluate()).toBe(10);
     });
 
     it('should evaluate to 2 when the expression is `10/5`', (): void => {
       const expr = director.makeExpression('=10/5', spreadsheet, cell);
+      expect(expr).toBeInstanceOf(FormulaExpression);
       expect(expr.evaluate()).toBe(2);
     });
 
     it('should evaluate to 16 when the expression is `2^4`', (): void => {
       const expr = director.makeExpression('=2^4', spreadsheet, cell);
+      expect(expr).toBeInstanceOf(FormulaExpression);
       expect(expr.evaluate()).toBe(16);
     });
 
     it('should handle whitespace', (): void => {
       const expr = director.makeExpression('= 2 + 3 ', spreadsheet, cell);
+      expect(expr).toBeInstanceOf(FormulaExpression);
       expect(expr.evaluate()).toBe(5);
     });
   });
