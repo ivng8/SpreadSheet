@@ -15,6 +15,10 @@ export class User {
         this.email = email;
     }
 
+    /**
+     * returns the name of the user
+     * @returns a string of the name
+     */
     public getName(): string {
         return this.name;
     }
