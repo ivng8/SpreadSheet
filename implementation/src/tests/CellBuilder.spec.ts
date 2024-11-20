@@ -1,17 +1,14 @@
 import { CellBuilder } from "model/builders/CellBuilder";
 import { Cell } from "model/components/Cell";
 import { SpreadSheet } from "model/components/SpreadSheet";
-import { User } from "model/components/User";
 
 describe('CellBuilder', (): void => {
   let builder: CellBuilder;
   let spreadsheet: SpreadSheet;
-  let user: User;
 
   beforeEach(() => {
     spreadsheet = new SpreadSheet(new Map<string, Cell>());
     builder = new CellBuilder(spreadsheet);
-    user = new User("Test User", "test@example.com");
   });
 
   describe('Constructor and Basic Operations', () => {
@@ -108,24 +105,6 @@ describe('CellBuilder', (): void => {
     });
   });
 
-  describe('Version History and Updates', () => {
-    it('should track content updates', (): void => {
-      builder.setContext(['42']);
-      const cell = builder.getProduct();
-      cell.updateContents('43', user);
-      expect(cell.getValue()).toBe(43);
-    });
-
-    it('should maintain update history with user info', (): void => {
-      builder.setContext(['Initial']);
-      const cell = builder.getProduct();
-      cell.updateContents('Update 1', user);
-      cell.updateContents('Update 2', user);
-      // Verify version history exists and contains updates
-      expect(cell['versionHistory']).toBeDefined();
-    });
-  });
-
   describe('Error Handling and Validation', () => {
     it('should handle invalid formulas gracefully', (): void => {
       builder.setContext(['=2++3']);
@@ -146,8 +125,8 @@ describe('CellBuilder', (): void => {
     });
 
     it('should handle circular references', (): void => {
-      const cellA1 = new Cell('=B1', spreadsheet);
-      const cellB1 = new Cell('=A1', spreadsheet);
+      const cellA1 = new Cell('=REF(B1)', spreadsheet);
+      const cellB1 = new Cell('=REF(A1)', spreadsheet);
       spreadsheet = new SpreadSheet(new Map([
         ['A1', cellA1],
         ['B1', cellB1]

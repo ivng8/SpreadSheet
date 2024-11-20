@@ -292,17 +292,17 @@ describe('ExpressionBuilder', (): void => {
 
   describe('Parentheses Edge Cases', () => {
     it('should handle multiple pairs of empty parentheses', (): void => {
-      const expr = director.makeExpression('(())', spreadsheet, cell);
+      const expr = director.makeExpression('=(())', spreadsheet, cell);
       expect(expr).toBeInstanceOf(WrongParentheses);
     });
 
     it('should handle deeply nested empty parentheses', (): void => {
-      const expr = director.makeExpression('(((()))))', spreadsheet, cell);
+      const expr = director.makeExpression('=(((()))))', spreadsheet, cell);
       expect(expr).toBeInstanceOf(WrongParentheses);
     });
 
     it('should handle mixed valid and invalid parentheses', (): void => {
-      const expr = director.makeExpression('(2+3)))', spreadsheet, cell);
+      const expr = director.makeExpression('=(2+3)))', spreadsheet, cell);
       expect(expr).toBeInstanceOf(WrongParentheses);
     });
   });
@@ -317,12 +317,12 @@ describe('ExpressionBuilder', (): void => {
     });
 
     it('should handle complex numeric and string operations', (): void => {
-      const expr = director.makeExpression('=(A1+A2)+(2*3)', spreadsheet, cell);
+      const expr = director.makeExpression('=(REF(A1)+REF(A2))+(2*3)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(11);
     });
 
     it('should handle nested operations with cell references', (): void => {
-      const expr = director.makeExpression('=(A1+2)*(A2+3)', spreadsheet, cell);
+      const expr = director.makeExpression('=(REF(A1)+2)*(REF(A2)+3)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(24);
     });
 
