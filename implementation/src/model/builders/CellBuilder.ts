@@ -14,7 +14,7 @@ export class CellBuilder implements IBuilder {
   /**
    * constructs a cellbuilder with the spreadsheet that it belongs to
    * @param reference the instance of the spreadsheet it belongs to
-   */ 
+   */
   public constructor(reference: SpreadSheet) {
     this.input = '';
     this.sheet = reference;

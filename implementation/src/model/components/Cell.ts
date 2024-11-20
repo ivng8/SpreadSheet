@@ -6,6 +6,10 @@ import { IError } from '../interfaces/IError';
 import { VersionEntry } from 'model/version/VersionEntry';
 import { User } from './User';
 
+// Define types for our observers
+type CellObserver = (cell: Cell) => void;
+type ValueChangeCallback = (newValue: any) => void;
+
 /**
  * represents a cell in a spreadsheet
  */
@@ -14,6 +18,12 @@ export class Cell {
   private expression: IExpression;
   private versionHistory: VersionHistory;
   private sheet: SpreadSheet;
+
+  // Observer pattern implementation
+  private observers: Set<CellObserver> = new Set();
+  private valueChangeObservers: Set<ValueChangeCallback> = new Set();
+  private dependencies: Set<Cell> = new Set();
+  private dependents: Set<Cell> = new Set();
 
   /**
    * constructor of a cell
@@ -25,6 +35,108 @@ export class Cell {
     this.sheet = reference;
     this.versionHistory = new VersionHistory();
     this.expression = new Director().makeExpression(this.input, this.sheet, this);
+  }
+
+  /**
+   * Subscribe to cell changes
+   * @param observer The observer function to be called on changes
+   */
+  public subscribe(observer: CellObserver): void {
+    this.observers.add(observer);
+  }
+
+  /**
+   * Unsubscribe from cell changes
+   * @param observer The observer function to remove
+   */
+  public unsubscribe(observer: CellObserver): void {
+    this.observers.delete(observer);
+  }
+
+  /**
+   * Subscribe to value changes specifically
+   * @param callback The callback function to be called when value changes
+   */
+  public subscribeToValue(callback: ValueChangeCallback): void {
+    this.valueChangeObservers.add(callback);
+  }
+
+  /**
+   * Unsubscribe from value changes
+   * @param callback The callback function to remove
+   */
+  public unsubscribeFromValue(callback: ValueChangeCallback): void {
+    this.valueChangeObservers.delete(callback);
+  }
+
+  /**
+   * Add a cell that this cell depends on
+   * @param cell The cell this cell depends on
+   */
+  public addDependency(cell: Cell): void {
+    this.dependencies.add(cell);
+    cell.addDependent(this);
+  }
+
+  /**
+   * Remove a dependency
+   * @param cell The cell to remove from dependencies
+   */
+  public removeDependency(cell: Cell): void {
+    this.dependencies.delete(cell);
+    cell.removeDependent(this);
+  }
+
+  /**
+   * Add a cell that depends on this cell
+   * @param cell The cell that depends on this cell
+   */
+  private addDependent(cell: Cell): void {
+    this.dependents.add(cell);
+  }
+
+  /**
+   * Remove a dependent
+   * @param cell The cell to remove from dependents
+   */
+  private removeDependent(cell: Cell): void {
+    this.dependents.delete(cell);
+  }
+
+  /**
+   * Clear all dependencies
+   */
+  private clearDependencies(): void {
+    this.dependencies.forEach(cell => {
+      cell.removeDependent(this);
+    });
+    this.dependencies.clear();
+  }
+
+  /**
+   * Notify all observers of changes
+   */
+  private notifyObservers(): void {
+    this.observers.forEach(observer => observer(this));
+  }
+
+  /**
+   * Notify value change observers
+   * @param newValue The new value
+   */
+  private notifyValueObservers(newValue: any): void {
+    this.valueChangeObservers.forEach(observer => observer(newValue));
+  }
+
+  /**
+   * Update dependent cells
+   */
+  private updateDependents(): void {
+    this.dependents.forEach(cell => {
+      cell.getValue(); // Recalculate value
+      cell.notifyObservers();
+      cell.notifyValueObservers(cell.getValue());
+    });
   }
 
   /**
@@ -41,9 +153,24 @@ export class Cell {
    * @param newText the new input
    */
   public updateContents(newText: string, user: User): void {
+    const oldValue = this.getValue();
+    this.clearDependencies(); // Clear old dependencies
+
     this.input = newText;
     this.expression = new Director().makeExpression(this.input, this.sheet, this);
     this.versionHistory.addEntry(new VersionEntry(newText, user));
+
+    // If the value has changed, notify observers
+    const newValue = this.getValue();
+    if (oldValue !== newValue) {
+      this.notifyValueObservers(newValue);
+    }
+
+    // Notify general observers
+    this.notifyObservers();
+
+    // Update dependent cells
+    this.updateDependents();
   }
 
   /**
@@ -53,6 +180,8 @@ export class Cell {
    */
   public catchErrors(error: IError): void {
     this.expression = error;
+    this.notifyObservers();
+    this.notifyValueObservers(null); // or some error value
   }
 
   /**
@@ -60,6 +189,23 @@ export class Cell {
    * @returns a string or number or null in case of errors
    */
   public getValue(): any {
-    return this.expression.evaluate();
+    const value = this.expression.evaluate();
+    return value;
+  }
+
+  /**
+   * Get all cells that this cell depends on
+   * @returns Set of dependent cells
+   */
+  public getDependencies(): Set<Cell> {
+    return new Set(this.dependencies);
+  }
+
+  /**
+   * Get all cells that depend on this cell
+   * @returns Set of dependent cells
+   */
+  public getDependents(): Set<Cell> {
+    return new Set(this.dependents);
   }
 }

@@ -1,25 +1,81 @@
 import { IExpression } from '../interfaces/IExpression';
-import { SpreadSheet } from 'model/components/SpreadSheet';
+import { Cell } from '../components/Cell';
+import { SpreadSheet } from '../components/SpreadSheet';
+import { InvalidExpression } from '../errors/InvalidExpression';
 
 /**
- * represents a reference to another cell
+ * Represents a reference to another cell (e.g., "=A1")
  */
-export class CellReference implements IExpression {
-  private reference: string;
+export class ReferenceExpression implements IExpression {
+  private referencedCell: Cell;
+  private currentCell: Cell;
   private sheet: SpreadSheet;
+  private address: string;
+  private visited: Set<string> = new Set();
 
   /**
-   * constructor for a CellReference
-   * @param reference the identifier of the cell it is referencing
-   * @param sheet the spreadsheet the reference belongs to
+   * Creates a reference expression
+   * @param address The address of the referenced cell (e.g., "A1")
+   * @param sheet The spreadsheet containing the cells
+   * @param currentCell The cell containing this reference
    */
-  public constructor(reference: string, sheet: SpreadSheet) {
-    this.reference = reference;
+  constructor(address: string, sheet: SpreadSheet, currentCell: Cell) {
+    this.address = address;
     this.sheet = sheet;
+    this.currentCell = currentCell;
+    this.referencedCell = this.sheet.getCell(address);
+
+    // Set up the dependency relationship
+    this.currentCell.addDependency(this.referencedCell);
   }
-  
-  public evaluate(): number | string {
-    return this.sheet.getCell(this.reference).getValue();
+
+  /**
+   * Evaluates the referenced cell's value
+   * @returns The value of the referenced cell
+   * @throws CircularError if a circular reference is detected
+   */
+  public evaluate(): any {
+    // Check for circular references
+    if (this.visited.has(this.address)) {
+      this.currentCell.catchErrors(new InvalidExpression());
+      throw new InvalidExpression();
+    }
+
+    try {
+      this.visited.add(this.address);
+      const value = this.referencedCell.getValue();
+      this.visited.delete(this.address);
+      return value;
+    } catch (error) {
+      this.visited.delete(this.address);
+      if (error instanceof InvalidExpression) {
+        this.currentCell.catchErrors(error);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Gets the cells that this expression depends on
+   * @returns A set containing the referenced cell
+   */
+  public getDependencies(): Set<Cell> {
+    return new Set([this.referencedCell]);
+  }
+
+  /**
+   * Gets the address of the referenced cell
+   * @returns The cell address
+   */
+  public getReferencedAddress(): string {
+    return this.address;
+  }
+
+  /**
+   * Clean up method to remove dependencies when the expression is no longer needed
+   */
+  public dispose(): void {
+    this.currentCell.removeDependency(this.referencedCell);
   }
 
   public display(): string {
