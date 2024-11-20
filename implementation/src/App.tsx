@@ -1,83 +1,57 @@
 import React, { useState } from 'react';
-import Cell from './view/components/grid/Cell';
-
-class SpreadSheet {
-  updateCell(address: string, value: string) {
-    console.log(`Mock update cell ${address} with value: ${value}`);
-  }
-}
+import Grid from './view/components/grid/Grid';
+import { SpreadSheet } from 'model/components/SpreadSheet';
+import { Cell } from 'model/components/Cell';
+import SpreadsheetToolbar from './view/components/toolbar/SpreadsheetToolbar';
 
 const App: React.FC = () => {
-  const [spreadsheet] = useState(() => new SpreadSheet());
+  const initializeGrid = () => {
+    const grid = new Map<string, Cell>();
+    // Create grid (Modeled after Google Sheets bounds)
+    for (let row = 0; row < 1000; row++) {
+      for (let col = 0; col < 26; col++) {
+        const colLabel = String.fromCharCode(65 + col);
+        const address = `${colLabel}${row + 1}`;
+        grid.set(address, new Cell('', null as any)); // Temporary null reference
+      }
+    }
+    const spreadsheet = new SpreadSheet(grid);
+    grid.forEach((cell, address) => {
+      grid.set(address, new Cell('', spreadsheet));
+    });
+    return spreadsheet;
+  };
+
+  const [spreadsheet] = useState(() => initializeGrid());
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
-  const rows = 20;
-  const cols = 20;
 
   const handleCellUpdate = (address: string, newValue: string) => {
-    console.log(`${address}:${newValue}`);
+    try {
+      const cell = spreadsheet.getCell(address);
+      cell.updateContents(newValue, null); // Pass null as user for now
+    } catch (error) {
+      console.error(`Error updating cell ${address}:`, error);
+    }
   };
 
   const handleCellSelect = (address: string) => {
     setSelectedCell(address);
-    console.log(`${address}`);
-  };
-
-  const getColumnLabel = (index: number): string => {
-    return String.fromCharCode(65 + index);
-  };
-
-  const getCellAddress = (row: number, col: number): string => {
-    return `${getColumnLabel(col)}${row + 1}`;
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Spreadsheet Demo</h1>
-      <div className="border border-gray-300" role="grid">
-        {/* Column Headers */}
-        <div className="flex" role="row">
-          {/* Top-left cell showing selected cell address */}
-          <div className="w-16 h-8 bg-gray-100 border-r border-b flex items-center justify-center text-sm font-medium">
-            {selectedCell || ''}
-          </div>
-          {Array.from({ length: cols }).map((_, colIndex) => (
-            <div
-              key={`header-${colIndex}`}
-              className="w-32 h-8 bg-gray-100 border-r border-b flex items-center justify-center font-medium"
-              role="columnheader"
-            >
-              {getColumnLabel(colIndex)}
-            </div>
-          ))}
-        </div>
-        {/* Grid Rows */}
-        {Array.from({ length: rows }).map((_, rowIndex) => (
-          <div key={`row-${rowIndex}`} className="flex" role="row">
-            {/* Row Header */}
-            <div
-              className="w-16 h-8 bg-gray-100 border-r border-b flex items-center justify-center font-medium"
-              role="rowheader"
-            >
-              {rowIndex + 1}
-            </div>
-            {/* Cells */}
-            {Array.from({ length: cols }).map((_, colIndex) => {
-              const address = getCellAddress(rowIndex, colIndex);
-              return (
-                <div key={`cell-${address}`} className="w-32 h-8">
-                  <Cell
-                    address={address}
-                    initialInput=""
-                    spreadsheet={spreadsheet}
-                    onUpdate={handleCellUpdate}
-                    isSelected={selectedCell === address}
-                    onSelect={handleCellSelect}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        ))}
+    <div className="flex flex-col h-screen bg-white">
+      <SpreadsheetToolbar
+        spreadsheet={spreadsheet}
+        selectedCell={selectedCell}
+        onCellUpdate={handleCellUpdate}
+      />
+      <div className="flex-1 overflow-hidden">
+        <Grid
+          spreadsheet={spreadsheet}
+          selectedCell={selectedCell}
+          onCellUpdate={handleCellUpdate}
+          onCellSelect={handleCellSelect}
+        />
       </div>
     </div>
   );

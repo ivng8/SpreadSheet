@@ -1,6 +1,5 @@
-/* eslint-disable no-undef */
-import React, { useState, useCallback, useMemo } from 'react';
-import { Button } from "../../shadcnui/button"
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { Button } from "@/components/ui/button"
 import { Cell } from 'model/components/Cell';
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import '../../../index.css'
@@ -26,14 +25,50 @@ const CellView: React.FC<CellProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(initialInput);
+  const [displayedValue, setDisplayedValue] = useState<string | number>('');
 
+  // Create memoized cell instance
   const cell = useMemo(() => {
-    return new Cell(address, initialInput, spreadsheet);
-  }, [address, initialInput, spreadsheet]);
+    return spreadsheet.getCell(address);
+  }, [address, spreadsheet]);
+
+  // Subscribe to cell value changes
+  useEffect(() => {
+    const handleValueChange = (newValue: any) => {
+      setDisplayedValue(newValue);
+    };
+
+    const handleCellChange = (updatedCell: Cell) => {
+      setInputValue(updatedCell.getInput());
+      setDisplayedValue(updatedCell.getValue());
+    };
+
+    // Initial value
+    setInputValue(cell.getInput());
+    setDisplayedValue(cell.getValue());
+
+    // Subscribe to both value and cell changes
+    cell.subscribeToValue(handleValueChange);
+    cell.subscribe(handleCellChange);
+
+    // Cleanup subscriptions
+    return () => {
+      cell.unsubscribeFromValue(handleValueChange);
+      cell.unsubscribe(handleCellChange);
+    };
+  }, [cell]);
+
+  const handleCellUpdate = (newValue: string) => {
+    if (newValue !== cell.getInput()) {
+      onUpdate(address, newValue);
+      setInputValue(newValue);
+      cell.updateContents(newValue, null); // Update local cell
+    }
+  };
 
   const handleSelect = () => {
     onSelect(address);
-    onAddressChange?.(address)
+    onAddressChange?.(address);
   };
 
   const startEditing = () => {
@@ -42,9 +77,7 @@ const CellView: React.FC<CellProps> = ({
 
   const handleBlur = () => {
     setIsEditing(false);
-    if (inputValue !== cell.getInput()) {
-      onUpdate(address, inputValue);
-    }
+    handleCellUpdate(inputValue);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLButtonElement>) => {
@@ -53,13 +86,14 @@ const CellView: React.FC<CellProps> = ({
         if (!isEditing) {
           startEditing();
         } else {
-          handleBlur();
-          cell.updateContents(inputValue);
+          setIsEditing(false);
+          handleCellUpdate(inputValue);
+          e.preventDefault();
         }
         break;
       case 'Escape':
         if (isEditing) {
-          setInputValue('');
+          setInputValue(cell.getInput()); // Reset to original value
           setIsEditing(false);
         }
         break;
@@ -76,14 +110,14 @@ const CellView: React.FC<CellProps> = ({
     setInputValue(e.target.value);
   };
 
-  const displayValue = useCallback(() => {
+  const getDisplayValue = useCallback(() => {
     try {
-      return cell.getValue();
+      return displayedValue?.toString() || '';
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return '#ERROR';
     }
-  }, [cell]);
+  }, [displayedValue]);
 
   if (isEditing) {
     return (
@@ -109,14 +143,14 @@ const CellView: React.FC<CellProps> = ({
       onClick={handleSelect}
       onDoubleClick={startEditing}
       onKeyDown={handleKeyDown}
-      aria-label={`Cell ${address}, value: ${displayValue()}`}
+      aria-label={`Cell ${address}, value: ${getDisplayValue()}`}
       aria-selected={isSelected}
       role="gridcell"
       tabIndex={isSelected ? 0 : -1}
     >
       <div className="w-full px-2 py-1 text-left">
         <span className="block truncate">
-          {displayValue()}
+          {getDisplayValue()}
         </span>
       </div>
     </Button>
@@ -131,6 +165,10 @@ class CellErrorBoundary extends React.Component<{ children: React.ReactNode }, {
 
   static getDerivedStateFromError() {
     return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('Cell Error:', error);
   }
 
   render() {
@@ -152,7 +190,6 @@ class CellErrorBoundary extends React.Component<{ children: React.ReactNode }, {
   }
 }
 
-// Main export with proper grid role
 export const CellComponent = React.memo((props: CellProps) => (
   <CellErrorBoundary>
     <CellView {...props} />
