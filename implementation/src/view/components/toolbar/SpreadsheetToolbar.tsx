@@ -39,11 +39,9 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
   };
 
   const handleCut = () => {
-    console.log(selectedCell);
     if (selectedCell) {
       try {
         const cell = spreadsheet.getCell(selectedCell);
-        console.log(cell.getValue());
         setClipboardContent(cell.getInput());
         spreadsheet.clearCell(selectedCell, null); // Temp null for users cause not implemented yet
       } catch (error) {
