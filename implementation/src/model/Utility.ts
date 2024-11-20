@@ -2,8 +2,18 @@ import * as XLSX from 'xlsx';
 import { SpreadSheet } from './components/SpreadSheet';
 import { Cell } from './components/Cell';
 
+/**
+ * a utility class that has useful static functions for the object classes
+ * comprised mostly of abstracted conversion methods
+ */
 export class Utility {
 
+    /**
+     * converts a letter which represents a column in a spreadsheet to a unique number
+     * similar to hashcoding
+     * @param column the column letter(s)
+     * @returns a number represent that column
+     */
     static columnLetterToNumber(column: string): number {
         let result = 0;
         for (let i = 0; i < column.length; i++) {
@@ -28,6 +38,11 @@ export class Utility {
         return result;
     }
 
+    /**
+     * converts an xlsx file into a SpreadSheet object that will be usable by the model
+     * @param filePath the filepath to the xlsx file
+     * @returns 
+     */
     static xlsxImport(filePath: string): SpreadSheet {
         const workbook = XLSX.readFile(filePath);
         const sheetName = workbook.SheetNames[0];
@@ -43,7 +58,12 @@ export class Utility {
         return sheet;
     }
 
-    static cellMapToXLSXSync(cellMap: Map<string, string>, outputPath: string): void {
+    /**
+     * writes a spreadsheet into an xlsx file
+     * @param cellMap the grid representing the spreadsheet data
+     * @param outputPath the path that the file is written into
+     */
+    static xlsxExport(cellMap: Map<string, string>, outputPath: string): void {
         const workbook: XLSX.WorkBook = XLSX.utils.book_new();
         const worksheet: XLSX.WorkSheet = {};
         let maxRow = 0;

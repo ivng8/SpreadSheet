@@ -11,6 +11,9 @@ export class SpreadSheetBuilder implements IBuilder {
   private context: Map<string, string>;
   private spreadsheet: SpreadSheet;
 
+  /**
+   * constructor for a blank SpreadSheet
+   */
   public constructor() {
     this.map = new Map<string, Cell>;
     this.context = new Map<string, string>;

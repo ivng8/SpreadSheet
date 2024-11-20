@@ -42,6 +42,7 @@ export class SpreadSheet {
   /**
    * inserts a blank row into the spreadsheet and updates the other addresses and references
    * @param index the index at which the row is to be inserted
+   * @param user the user
    */
   public insertRow(index: number, user: User): void {
     this.updateReferences(index, 0, 1, user);
@@ -68,6 +69,7 @@ export class SpreadSheet {
   /**
    * deletes a row and updates the other addresses and references
    * @param index the index at which the row is to be deleted
+   * @param user the user
    */
   public deleteRow(index: number, user: User): void {
     this.updateReferences(index, 0, -1, user);
@@ -87,6 +89,7 @@ export class SpreadSheet {
   /**
    * inserts a blank column into the spreadsheet and updates the other addresses and references
    * @param index the index at which the column is to be inserted
+   * @param user the user
    */
   public insertColumn(index: number, user: User): void {
     this.updateReferences(index, 1, 0, user);
@@ -114,6 +117,7 @@ export class SpreadSheet {
   /**
    * deletes a column and updates the other addresses and references
    * @param index the index at which the column is to be deleted
+   * @param user the user
    */
   public deleteColumn(index: number, user: User): void {
     this.updateReferences(index, -1, 0, user);
@@ -134,6 +138,7 @@ export class SpreadSheet {
   /**
    * clears the contents of a cell
    * @param address the address of the cell to be cleared
+   * @param user the user
    */
   public clearCell(address: string, user: User): void {
     this.getCell(address).updateContents('', user);
@@ -149,6 +154,14 @@ export class SpreadSheet {
     }
   }
 
+  /**
+   * updates the references to all the cells that were shifted due to some translation
+   * in the x or y direction depending on row or column mutation
+   * @param point the reference row or col that is the pivot of the mutation
+   * @param x the col direction 1 being add -1 being deletion
+   * @param y the row direction 1 being add -1 being deletion
+   * @param user the user
+   */
   private updateReferences(point: number, x: number, y: number, user: User): void {
     const digits = Array.from(this.grid.keys());
     const refRegex = /REF\(([A-Za-z]+\d+)\)/g;
@@ -174,6 +187,12 @@ export class SpreadSheet {
     }
   }
 
+  /**
+   * imports an xlsx file onto the sheet using a pivot point as the drag and drop location
+   * @param filePath the filepath to the other spreadsheet
+   * @param originPoint the location of the drag and drop
+   * @param user the user doing it
+   */
   async import(filePath: string, originPoint: string, user: User): Promise<void> {
     const sheet = Utility.xlsxImport(filePath);
     const [letter, digit] = originPoint.match(/^([A-Za-z]+)(\d+)$/)!;
