@@ -287,17 +287,17 @@ describe('ExpressionBuilder', (): void => {
 
   describe('Parentheses Edge Cases', () => {
     it('should handle multiple pairs of empty parentheses', (): void => {
-      const expr = director.makeExpression('(())', spreadsheet, cell);
+      const expr = director.makeExpression('=(())', spreadsheet, cell);
       expect(expr).toBeInstanceOf(WrongParentheses);
     });
 
     it('should handle deeply nested empty parentheses', (): void => {
-      const expr = director.makeExpression('(((()))))', spreadsheet, cell);
+      const expr = director.makeExpression('=(((()))))', spreadsheet, cell);
       expect(expr).toBeInstanceOf(WrongParentheses);
     });
 
     it('should handle mixed valid and invalid parentheses', (): void => {
-      const expr = director.makeExpression('(2+3)))', spreadsheet, cell);
+      const expr = director.makeExpression('=(2+3)))', spreadsheet, cell);
       expect(expr).toBeInstanceOf(WrongParentheses);
     });
   });
