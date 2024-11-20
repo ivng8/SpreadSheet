@@ -66,10 +66,10 @@ describe('ExpressionBuilder', (): void => {
 
     it('should handle nested cell references', (): void => {
       const nestedSheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=B1', spreadsheet)],
+        ['A1', new Cell('=REF(B1)', spreadsheet)],
         ['B1', new Cell('42', spreadsheet)]
       ]));
-      const expr = director.makeExpression('=A1', nestedSheet, cell);
+      const expr = director.makeExpression('=REF(A1)', nestedSheet, cell);
       expect(expr.evaluate()).toBe(42);
     })
   });
@@ -312,12 +312,12 @@ describe('ExpressionBuilder', (): void => {
     });
 
     it('should handle complex numeric and string operations', (): void => {
-      const expr = director.makeExpression('=(A1+A2)+(2*3)', spreadsheet, cell);
+      const expr = director.makeExpression('=(REF(A1)+REF(A2))+(2*3)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(11);
     });
 
     it('should handle nested operations with cell references', (): void => {
-      const expr = director.makeExpression('=(A1+2)*(A2+3)', spreadsheet, cell);
+      const expr = director.makeExpression('=(REF(A1)+2)*(REF(A2)+3)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(24);
     });
 
