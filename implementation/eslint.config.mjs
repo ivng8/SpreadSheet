@@ -22,11 +22,18 @@ export default [
       sourceType: 'module',
       parser: tsParser,
       parserOptions: {
-        project: null,  // Changed this line
+        project: './tsconfig.json',
         ecmaFeatures: {
           jsx: true,
         },
+        ecmaVersion: 'latest',
+        sourceType: 'module',
       },
+    },
+    env: {
+      browser: true,
+      es2022: true,
+      node: true,
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,
@@ -61,6 +68,8 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-undef': 'off',
+      'no-undef': 'off',
 
       // React rules
       'react/react-in-jsx-scope': 'off',

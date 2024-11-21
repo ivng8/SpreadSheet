@@ -69,7 +69,7 @@ export class FormulaExpression implements IExpression {
   }
 
   /**
-   * checks that both operands are arithmetic 
+   * checks that both operands are arithmetic
    * @returns boolean
    */
   private checkBothNumbers(): boolean {
