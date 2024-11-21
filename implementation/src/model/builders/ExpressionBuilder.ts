@@ -3,7 +3,7 @@ import { IExpression } from '../interfaces/IExpression';
 import { EmptyExpression } from '../expressions/EmptyExpression';
 import { NumericConstant } from '../expressions/NumericConstant';
 import { StringConstant } from '../expressions/StringConstant';
-import { ReferenceExpression } from '../expressions/CellReference';
+import { ReferenceExpression } from '../expressions/ReferenceExpression';
 import { RangeExpression } from '../expressions/RangeExpression';
 import { WrongParentheses } from '../errors/WrongParentheses';
 import { InvalidExpression } from '../errors/InvalidExpression';
@@ -65,9 +65,11 @@ export class ExpressionBuilder implements IBuilder {
       this.context = this.context.substring(1, this.context.length);
       this.checkParentheses();
       this.simpleExpression();
+    } else {
+      this.expression = new StringConstant(this.context);
     }
     if (this.expression instanceof EmptyExpression) {
-      this.expression = new StringConstant(this.context);
+      this.expression = new InvalidExpression();
     }
   }
 
@@ -80,10 +82,11 @@ export class ExpressionBuilder implements IBuilder {
     } else if (/^REF\([A-Za-z]+\d+\)$/.test(this.context)) {
       const ref = this.context.match(/REF\(([A-Z]+\d+)\)/)!;
       this.expression = new ReferenceExpression(ref[1], this.sheet, this.cell);
-
     } else if (/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/.test(this.context)) {
-      const [func, start, end] = this.context.match(/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/)!;
-      this.expression = new RangeExpression(func, start, end, this.sheet, this.cell);
+      const parts = this.context.match(/^([A-Z]+)\(([A-Z]+[0-9]+):([A-Z]+[0-9]+)\)$/)!;
+      this.expression = new RangeExpression(parts[1], parts[2], parts[3], this.sheet, this.cell);
+    } else if (/^[A-Za-z]+$/.test(this.context)) {
+      this.expression = new StringConstant(this.context);
     }
   }
 
@@ -134,10 +137,24 @@ export class ExpressionBuilder implements IBuilder {
       if (char === '+' || char === '-') {
         this.expression = this.generalFormula(char, i);
         return;
-      } else if (char === '*' || char === '/') {
+      }
+    }
+    for (let i = 0; i < this.context.length; i += 1) {
+      if (skip_indicies.includes(i)) {
+        continue;
+      }
+      let char: string = this.context.charAt(i);
+      if (char === '*' || char === '/') {
         this.expression = this.generalFormula(char, i);
         return;
-      } else if (char === '^') {
+      }
+    }
+    for (let i = 0; i < this.context.length; i += 1) {
+      if (skip_indicies.includes(i)) {
+        continue;
+      }
+      let char: string = this.context.charAt(i);
+      if (char === '^') {
         this.expression = this.generalFormula(char, i);
         return;
       }
