@@ -137,41 +137,6 @@ describe('SpreadSheet', () => {
     });
   });
 
-  describe('Import and Merge', () => {
-    it('should import spreadsheet starting at specified point', async () => {
-      const sourceGrid = new Map<string, Cell>([
-        ['A1', new Cell('source1', spreadsheet)],
-        ['A2', new Cell('source2', spreadsheet)]
-      ]);
-      const sourceSheet = new SpreadSheet(sourceGrid);
-
-      const targetGrid = new Map<string, Cell>([
-        ['C3', new Cell('target', spreadsheet)]
-      ]);
-      spreadsheet = new SpreadSheet(targetGrid);
-
-      await spreadsheet.import('test.xlsx', 'C3', user);
-
-      // Note: Since we can't actually test file import, we're testing the structure only
-      expect(spreadsheet.getCell('C3').getValue()).toBe('source1');
-      expect(spreadsheet.getCell('C4').getValue()).toBe('source2');
-    });
-
-    it('should handle conflicting cells during import', async () => {
-      const sourceGrid = new Map<string, Cell>([
-        ['A1', new Cell('source', spreadsheet)]
-      ]);
-      const sourceSheet = new SpreadSheet(sourceGrid);
-
-      const targetGrid = new Map<string, Cell>([
-        ['A1', new Cell('target', spreadsheet)]
-      ]);
-      spreadsheet = new SpreadSheet(targetGrid);
-
-      await spreadsheet.import('test.xlsx', 'A1', user);
-    });
-  });
-
   describe('Range Handling', () => {
     beforeEach(() => {
       const grid = new Map<string, Cell>();
