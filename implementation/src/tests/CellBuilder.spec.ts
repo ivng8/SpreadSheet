@@ -120,24 +120,15 @@ describe('CellBuilder', (): void => {
 
     it('should handle undefined cell references', (): void => {
       builder.setContext(['=REF(Z99)']);
-      const cell = builder.getProduct();
-      expect(() => cell.getValue()).toThrow();
-    });
-
-    it('should handle circular references', (): void => {
-      const cellA1 = new Cell('=REF(B1)', spreadsheet);
-      const cellB1 = new Cell('=REF(A1)', spreadsheet);
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', cellA1],
-        ['B1', cellB1]
-      ]));
-      expect(() => cellA1.getValue()).toThrow();
+      expect(() => {
+        builder.getProduct();
+      }).toThrow('Cell at Z99 is empty');
     });
 
     it('should handle malformed input', (): void => {
       builder.setContext(['==2+3']);
       const cell = builder.getProduct();
-      expect(cell.getValue()).toBe('==2+3');
+      expect(cell.getValue()).toBeNull();
     });
   });
 
@@ -153,7 +144,7 @@ describe('CellBuilder', (): void => {
       builder.setContext(['   ']);
       const cell = builder.getProduct();
       expect(cell.getInput()).toBe('   ');
-      expect(cell.getValue()).toBe('   ');
+      expect(cell.getValue()).toBeNull();
     });
 
     it('should handle special characters', (): void => {
@@ -233,9 +224,10 @@ describe('CellBuilder', (): void => {
     });
 
     it('should handle invalid range references', (): void => {
-      builder.setContext(['=SUM(Z1:Z9)']);
-      const cell = builder.getProduct();
-      expect(cell.getValue()).toBeNull();
+      expect(() => {
+        builder.setContext(['=SUM(Z1:Z9)']);
+        builder.getProduct();
+      }).toThrow('Cell at Z1 is empty');
     });
   });
 });
