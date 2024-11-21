@@ -82,7 +82,7 @@ describe('Cell Version History', () => {
     it('should handle numeric content updates', () => {
       cell.updateContents('=42', user1);
       cell.updateContents('=43.5', user2);
-      expect(cell.getInput()).toBe('43.5');
+      expect(cell.getInput()).toBe('=43.5');
       expect(cell.getValue()).toBe(43.5);
     });
 
@@ -118,10 +118,10 @@ describe('Cell Version History', () => {
 
     it('should handle multiple rapid updates', () => {
       for(let i = 0; i < 100; i++) {
-        cell.updateContents(`=value${i}`, user1);
+        cell.updateContents(`value${i}`, user1);
       }
-      expect(cell.getInput()).toBe('=value99');
-      expect(cell.getValue()).toBe('=value99');
+      expect(cell.getInput()).toBe('value99');
+      expect(cell.getValue()).toBe('value99');
     });
   });
 

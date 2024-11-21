@@ -51,7 +51,6 @@ export class RangeExpression implements IExpression {
   }
 
   public evaluate(): unknown {
-    console.log(this.addresses);
     let values: unknown[] = [];
     this.visited.clear;
     for (let i = 0; i < this.referencedCells.length; i += 1) {

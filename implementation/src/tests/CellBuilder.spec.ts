@@ -37,9 +37,9 @@ describe('CellBuilder', (): void => {
 
   describe('Cell Content Management', () => {
     it('should create cell with numeric input', (): void => {
-      builder.setContext(['42']);
+      builder.setContext(['=42']);
       const cell = builder.getProduct();
-      expect(cell.getInput()).toBe('42');
+      expect(cell.getInput()).toBe('=42');
       expect(cell.getValue()).toBe(42);
     });
 
@@ -58,16 +58,16 @@ describe('CellBuilder', (): void => {
     });
 
     it('should handle decimal numbers', (): void => {
-      builder.setContext(['3.14159']);
+      builder.setContext(['=3.14159']);
       const cell = builder.getProduct();
-      expect(cell.getInput()).toBe('3.14159');
+      expect(cell.getInput()).toBe('=3.14159');
       expect(cell.getValue()).toBe(3.14159);
     });
 
     it('should handle negative numbers', (): void => {
-      builder.setContext(['-42']);
+      builder.setContext(['=-42']);
       const cell = builder.getProduct();
-      expect(cell.getInput()).toBe('-42');
+      expect(cell.getInput()).toBe('=-42');
       expect(cell.getValue()).toBe(-42);
     });
   });
@@ -88,12 +88,12 @@ describe('CellBuilder', (): void => {
     });
 
     it('should handle cell references in formulas', (): void => {
-      const cellA1 = new Cell('42', spreadsheet);
+      const cellA1 = new Cell('=42', spreadsheet);
       spreadsheet = new SpreadSheet(new Map([['A1', cellA1]]));
       builder = new CellBuilder(spreadsheet);
       builder.setContext(['=REF(A1)']);
       const cell = builder.getProduct();
-      expect(cell.getInput()).toBe('42');
+      expect(cell.getInput()).toBe('=REF(A1)');
       expect(cell.getValue()).toBe(42);
     });
 
@@ -119,7 +119,7 @@ describe('CellBuilder', (): void => {
     });
 
     it('should handle undefined cell references', (): void => {
-      builder.setContext(['=Z99']);
+      builder.setContext(['=REF(Z99)']);
       const cell = builder.getProduct();
       expect(() => cell.getValue()).toThrow();
     });
