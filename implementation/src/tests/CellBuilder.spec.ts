@@ -191,10 +191,10 @@ describe('CellBuilder', (): void => {
     beforeEach(() => {
       // Setup a grid of cells with values
       const cells = new Map<string, Cell>();
-      cells.set('A1', new Cell('1', spreadsheet));
-      cells.set('A2', new Cell('2', spreadsheet));
-      cells.set('A3', new Cell('3', spreadsheet));
-      cells.set('A4', new Cell('4', spreadsheet));
+      cells.set('A1', new Cell('=1', spreadsheet));
+      cells.set('A2', new Cell('=2', spreadsheet));
+      cells.set('A3', new Cell('=3', spreadsheet));
+      cells.set('A4', new Cell('=4', spreadsheet));
       spreadsheet = new SpreadSheet(cells);
       builder = new CellBuilder(spreadsheet);
     });
