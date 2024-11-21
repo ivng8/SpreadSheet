@@ -153,6 +153,9 @@ export class Cell {
    * @param newText the new input
    */
   public updateContents(newText: string, user: User): void {
+    if (this.input === newText) {
+      return;
+    }
     const oldValue = this.getValue();
     this.clearDependencies(); // Clear old dependencies
 
@@ -171,6 +174,10 @@ export class Cell {
 
     // Update dependent cells
     this.updateDependents();
+  }
+
+  public revert(entryId: string) {
+    this.versionHistory.revert(entryId);
   }
 
   /**

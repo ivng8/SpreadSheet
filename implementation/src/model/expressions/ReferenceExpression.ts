@@ -53,8 +53,4 @@ export class ReferenceExpression implements IExpression {
       throw error;
     }
   }
-
-  public display(): string {
-    return this.evaluate + '';
-  }
 }

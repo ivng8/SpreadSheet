@@ -5,7 +5,7 @@ import { AError } from './AError';
  */
 export class MixedValues extends AError {
 
-  public display(): string {
+  public evaluate(): string {
     return 'Mixed values';
   }
 }

@@ -5,7 +5,7 @@ import { AError } from '../errors/AError';
  */
 export class NullOperand extends AError {
   
-  public display(): string {
+  public evaluate(): string {
     return 'Missing operand';
   }
 }

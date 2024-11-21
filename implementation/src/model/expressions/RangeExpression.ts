@@ -86,8 +86,4 @@ export class RangeExpression implements IExpression {
         return null;
     }
   }
-
-  public display(): string {
-    return this.evaluate() + '';
-  }
 }

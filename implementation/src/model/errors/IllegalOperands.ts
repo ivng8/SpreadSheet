@@ -5,7 +5,7 @@ import { AError } from '../errors/AError';
  */
 export class IllegalOperands extends AError {
 
-  public display(): string {
+  public evaluate(): string {
     return 'Illegal operands';
   }
 }

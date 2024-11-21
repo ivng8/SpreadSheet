@@ -75,8 +75,4 @@ export class FormulaExpression implements IExpression {
   private checkBothNumbers(): boolean {
     return typeof this.left.evaluate() === 'number' && typeof this.right.evaluate() === 'number';
   }
-
-  public display(): string {
-    return this.evaluate() + '';
-  }
 }
