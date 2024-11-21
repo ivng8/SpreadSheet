@@ -48,10 +48,11 @@ describe('Cell Version History', () => {
 
   describe('Cell References', () => {
     it('should maintain cell references through updates', () => {
+      const grid = new Map<string, Cell>();
       const cellA1 = new Cell('=42', spreadsheet);
-      spreadsheet = new SpreadSheet(new Map([['=REF(A1)', cellA1]]));
+      grid.set('A1', cellA1);
+      spreadsheet = new SpreadSheet(grid);
       cell = new Cell('=REF(A1)', spreadsheet);
-      
       expect(cell.getValue()).toBe(42);
       
       cellA1.updateContents('=43', user1);
@@ -59,13 +60,14 @@ describe('Cell Version History', () => {
     });
 
     it('should handle reference updates', () => {
+      const grid = new Map<string, Cell>();
       const cellA1 = new Cell('=42', spreadsheet);
-      spreadsheet = new SpreadSheet(new Map([['=REF(A1)', cellA1]]));
+      grid.set('A1', cellA1);
+      spreadsheet = new SpreadSheet(grid);
       cell = new Cell('', spreadsheet);
-      
       cell.updateContents('=REF(A1)', user1);
       expect(cell.getValue()).toBe(42);
-      
+
       cell.updateContents('=REF(A1)+1', user2);
       expect(cell.getValue()).toBe(43);
     });
@@ -133,20 +135,22 @@ describe('Cell Version History', () => {
     });
 
     it('should handle circular reference updates', () => {
-      const cellA1 = cell;
-      const cellB1 = new Cell('=REF(A1)', spreadsheet);
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', cellA1],
-        ['B1', cellB1]
-      ]));
-
-      cell.updateContents('=REF(B1)', user1);
-      expect(cell.getValue()).toBeNull();
+      const grid = new Map<string, Cell>();
+      const cellA1 = new Cell('=42', spreadsheet);
+      grid.set('A1', cellA1);
+      spreadsheet = new SpreadSheet(grid);
+      grid.set('B1', new Cell('=REF(A1)', spreadsheet));
+      expect(() => {
+        cellA1.updateContents('=REF(B1)', user1);
+        cellA1.getValue();
+      }).toThrow('Cell at B1 is empty');
     });
 
     it('should handle undefined reference updates', () => {
-      cell.updateContents('=REF(Z99)', user1);
-      expect(cell.getValue()).toBeNull();
+      expect(() => {
+        cell.updateContents('=REF(Z99)', user1);
+        cell.getValue();
+      }).toThrow('Cell at Z99 is empty');
     });
   });
 
