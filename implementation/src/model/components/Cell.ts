@@ -6,7 +6,7 @@ import { IError } from '../interfaces/IError';
 import { VersionEntry } from 'model/version/VersionEntry';
 import { User } from './User';
 
-// Define types for our observers
+// Simple types for our observers
 type CellObserver = (cell: Cell) => void;
 type ValueChangeCallback = (newValue: any) => void;
 
@@ -117,6 +117,7 @@ export class Cell {
    * Notify all observers of changes
    */
   private notifyObservers(): void {
+    console.log(this.observers)
     this.observers.forEach(observer => observer(this));
   }
 
@@ -191,21 +192,5 @@ export class Cell {
   public getValue(): any {
     const value = this.expression.evaluate();
     return value;
-  }
-
-  /**
-   * Get all cells that this cell depends on
-   * @returns Set of dependent cells
-   */
-  public getDependencies(): Set<Cell> {
-    return new Set(this.dependencies);
-  }
-
-  /**
-   * Get all cells that depend on this cell
-   * @returns Set of dependent cells
-   */
-  public getDependents(): Set<Cell> {
-    return new Set(this.dependents);
   }
 }

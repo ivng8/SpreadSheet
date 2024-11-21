@@ -1,10 +1,13 @@
-/* eslint-disable no-undef */
+
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import CellComponent from './Cell';
 import { SpreadSheet } from 'model/components/SpreadSheet';
+import { User } from 'model/components/User';
 
 interface GridProps {
+  // The user object for collaborative editing
+  user: User;
   // The spreadsheet object from our model
   spreadsheet: SpreadSheet;
   // Currently selected cell address (e.g., 'A1')
@@ -26,7 +29,7 @@ const BUFFER_COLS = 0;
  * Grid Component for rendering a spreadsheet-like interface
  * Handles virtualization, scrolling, and cell rendering optimization
  */
-const Grid: React.FC<GridProps> = ({ spreadsheet, selectedCell, onCellUpdate, onCellSelect }) => {
+const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpdate, onCellSelect }) => {
   // Refs for DOM elements and state management
   const containerRef = useRef<HTMLDivElement>(null); // Main grid container
   const columnHeaderRef = useRef<HTMLDivElement>(null); // Column headers container
@@ -324,6 +327,7 @@ const Grid: React.FC<GridProps> = ({ spreadsheet, selectedCell, onCellUpdate, on
                             }}
                           >
                             <CellComponent
+                              user={user}
                               address={address}
                               initialInput={getCellInitialValue(address)}
                               spreadsheet={spreadsheet}

@@ -55,29 +55,6 @@ export class ReferenceExpression implements IExpression {
     }
   }
 
-  /**
-   * Gets the cells that this expression depends on
-   * @returns A set containing the referenced cell
-   */
-  public getDependencies(): Set<Cell> {
-    return new Set([this.referencedCell]);
-  }
-
-  /**
-   * Gets the address of the referenced cell
-   * @returns The cell address
-   */
-  public getReferencedAddress(): string {
-    return this.address;
-  }
-
-  /**
-   * Clean up method to remove dependencies when the expression is no longer needed
-   */
-  public dispose(): void {
-    this.currentCell.removeDependency(this.referencedCell);
-  }
-
   public display(): string {
     return this.evaluate + '';
   }

@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button"
 import { Cell } from 'model/components/Cell';
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import '../../../index.css'
+import { User } from 'model/components/User';
 
 interface CellProps {
+  user: User;
   address: string;
   initialInput: string;
   spreadsheet: SpreadSheet;
@@ -15,6 +17,7 @@ interface CellProps {
 }
 
 const CellView: React.FC<CellProps> = ({
+  user,
   address,
   initialInput,
   spreadsheet,
@@ -62,7 +65,7 @@ const CellView: React.FC<CellProps> = ({
     if (newValue !== cell.getInput()) {
       onUpdate(address, newValue);
       setInputValue(newValue);
-      cell.updateContents(newValue, null); // Update local cell
+      cell.updateContents(newValue, user); // Update local cell
     }
   };
 
