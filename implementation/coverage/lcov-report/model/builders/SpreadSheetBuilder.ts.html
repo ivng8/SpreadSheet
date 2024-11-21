@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">19.04% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/21</span>
+                <span class='fraction'>18/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>3/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">22.22% </span>
+                <span class="strong">88.88% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/18</span>
+                <span class='fraction'>16/18</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -105,40 +105,40 @@
 <a name='L40'></a><a href='#L40'>40</a>
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a>
-<a name='L43'></a><a href='#L43'>43</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L43'></a><a href='#L43'>43</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">450x</span>
+<span class="cline-any cline-yes">22500x</span>
+<span class="cline-any cline-yes">22500x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -156,31 +156,31 @@ import { Utility } from 'model/Utility';
  * Constructs a blank SpreadSheet 
  */
 export class SpreadSheetBuilder implements IBuilder {
-  private <span class="cstat-no" title="statement not covered" >map: Map&lt;string, Cell&gt;;</span>
-  private <span class="cstat-no" title="statement not covered" >context: Map&lt;string, string&gt;;</span>
-  private <span class="cstat-no" title="statement not covered" >spreadsheet: SpreadSheet;</span>
+  private map: Map&lt;string, Cell&gt;;
+  private context: Map&lt;string, string&gt;;
+  private spreadsheet: SpreadSheet;
 &nbsp;
   /**
    * constructor for a blank SpreadSheet
    */
-<span class="fstat-no" title="function not covered" >  public constructor() {</span>
-<span class="cstat-no" title="statement not covered" >    this.map = new Map&lt;string, Cell&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    this.context = new Map&lt;string, string&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    this.spreadsheet = new SpreadSheet(this.map);</span>
+  public constructor() {
+    this.map = new Map&lt;string, Cell&gt;;
+    this.context = new Map&lt;string, string&gt;;
+    this.spreadsheet = new SpreadSheet(this.map);
   }
 &nbsp;
-  public <span class="fstat-no" title="function not covered" >getProduct(</span>): SpreadSheet {
-<span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; 25; i += 1) {</span>
-<span class="cstat-no" title="statement not covered" >       for (let j = <span class="cstat-no" title="statement not covered" >0;</span> j &lt; 50 ; j += 1) {</span>
-        let index: string = <span class="cstat-no" title="statement not covered" >Utility.numberToColumnLetter(i) + j;</span>
-<span class="cstat-no" title="statement not covered" >        this.map.set(index, new Cell(this.context.get(index) || '', this.spreadsheet));</span>
+  public getProduct(): SpreadSheet {
+    for (let i = 0; i &lt; 25; i += 1) {
+       for (let j = 0; j &lt; 50 ; j += 1) {
+        let index: string = Utility.numberToColumnLetter(i) + j;
+        this.map.set(index, new Cell(this.context.get(index) || '', this.spreadsheet));
        }
     }
-<span class="cstat-no" title="statement not covered" >    return this.spreadsheet;</span>
+    return this.spreadsheet;
   }
 &nbsp;
-  public <span class="fstat-no" title="function not covered" >reset(</span>): void {
-<span class="cstat-no" title="statement not covered" >    this.map.clear();</span>
+  public reset(): void {
+    this.map.clear();
   }
 &nbsp;
   public <span class="fstat-no" title="function not covered" >setContext(</span>text: string[]): void {
@@ -196,7 +196,7 @@ export class SpreadSheetBuilder implements IBuilder {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-11-21T01:20:35.851Z
+                at 2024-11-21T02:25:46.886Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
