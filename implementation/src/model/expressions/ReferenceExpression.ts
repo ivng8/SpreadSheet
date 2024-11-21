@@ -40,7 +40,6 @@ export class ReferenceExpression implements IExpression {
       this.currentCell.catchErrors(new InvalidExpression());
       throw new InvalidExpression();
     }
-
     try {
       this.visited.add(this.address);
       const value = this.referencedCell.getValue();

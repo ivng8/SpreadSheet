@@ -48,7 +48,6 @@ export class FormulaExpression implements IExpression {
           return this.left.evaluate() - this.right.evaluate();
         }
       case Operator.PLUS:
-        console.log("here");
         return this.left.evaluate() + this.right.evaluate();
       case Operator.MULT:
         if (!math) {

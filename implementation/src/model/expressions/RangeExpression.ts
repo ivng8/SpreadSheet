@@ -10,11 +10,14 @@ import { Utility } from 'model/Utility';
  * represents an aggregate function
  */
 export class RangeExpression implements IExpression {
+  private referencedCells: Cell[] = [];
   private func: string;
   private start: string;
   private end: string;
   private reference: SpreadSheet;
   private cell: Cell;
+  private addresses: string[] = [];
+  private visited: Set<string> = new Set();
 
   /**
    * constructor for a Range Expression
@@ -30,37 +33,45 @@ export class RangeExpression implements IExpression {
     this.end = end;
     this.reference = reference;
     this.cell = cell;
+    const pair1 = this.start.match(/^([A-Z]+)([0-9]+)$/)!;
+    const pair2 = this.end.match(/^([A-Z]+)([0-9]+)$/)!;
+    for (
+      let i = Utility.columnLetterToNumber(pair1[1]);
+      i <= Utility.columnLetterToNumber(pair2[1]);
+      i += 1
+    ) {
+      for (let j = parseInt(pair1[2]); j <= parseInt(pair2[2]); j += 1) {
+        this.referencedCells.push(this.reference.getCell(Utility.numberToColumnLetter(i) + j));
+        this.addresses.push(Utility.numberToColumnLetter(i) + j);
+      }
+    }
+    for (let i = 0; i < this.referencedCells.length; i += 1) {
+      this.cell.addDependency(this.referencedCells[i]);
+    }
   }
 
   public evaluate(): unknown {
     let values: unknown[] = [];
-    const [column1, row1] = this.start.match(/^[A-Z]+[0-9]+$/)!;
-    const [column2, row2] = this.end.match(/^[A-Z]+[0-9]+$/)!;
-    for (
-      let i = Utility.columnLetterToNumber(column1);
-      i < Utility.columnLetterToNumber(column2);
-      i += 1
-    ) {
-      for (let j = parseInt(row1); j < parseInt(row2); j += 1) {
-        let value: unknown = this.reference.getCell(Utility.numberToColumnLetter(i) + j).getValue();
+    this.visited.clear;
+    for (let i = 0; i < this.referencedCells.length; i += 1) {
+      try {
+        const value = this.referencedCells[i].getValue();
         if (value === null) {
           this.cell.catchErrors(new InvalidRange());
-          return null;
-        } else {
-          values.push(value);
         }
+        values.push(value);
+      } catch (error) {
+        if (error instanceof InvalidExpression) {
+          this.cell.catchErrors(error);
+        }
+        throw error;
       }
     }
-    if (values.length === 0) {
-      return null;
-    }
-
     const allNumbers = values.every(value => typeof value === 'number');
     if (!allNumbers) {
       this.cell.catchErrors(new IllegalOperands());
       return null;
     }
-
     switch (this.func) {
       case 'SUM':
         return values.reduce((sum, value) => sum + value, 0);
