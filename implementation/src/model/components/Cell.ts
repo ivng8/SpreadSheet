@@ -3,7 +3,6 @@ import { VersionHistory } from "model/version/VersionHistory";
 import { Director } from '../Director';
 import { SpreadSheet } from './SpreadSheet';
 import { IError } from '../interfaces/IError';
-import { VersionEntry } from 'model/version/VersionEntry';
 import { User } from './User';
 
 // Simple types for our observers
@@ -117,7 +116,6 @@ export class Cell {
    * Notify all observers of changes
    */
   private notifyObservers(): void {
-    console.log(this.observers)
     this.observers.forEach(observer => observer(this));
   }
 
@@ -137,6 +135,7 @@ export class Cell {
       cell.getValue(); // Recalculate value
       cell.notifyObservers();
       cell.notifyValueObservers(cell.getValue());
+      cell.updateDependents();
     });
   }
 
@@ -159,7 +158,7 @@ export class Cell {
 
     this.input = newText;
     this.expression = new Director().makeExpression(this.input, this.sheet, this);
-    this.versionHistory.addEntry(new VersionEntry(newText, user));
+    this.versionHistory.addEntry(newText, user);
 
     // If the value has changed, notify observers
     const newValue = this.getValue();

@@ -5,14 +5,14 @@ import Grid from './view/components/grid/Grid';
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import { Cell } from 'model/components/Cell';
 import SpreadsheetToolbar from './view/components/toolbar/SpreadsheetToolbar';
-import { CollaborativeSpreadsheetModel } from 'model/collaborative/CollaborativeSpreadSheetModel';
+import { SheetSyncer } from 'model/collaborative/SheetSyncer';
 
 const App: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [showJoinDialog, setShowJoinDialog] = useState(true);
   const [sessionCode, setSessionCode] = useState('');
   const [currentSessionCode, setCurrentSessionCode] = useState<string | null>(null);
-  const modelRef = useRef<CollaborativeSpreadsheetModel | null>(null);
+  const modelRef = useRef<SheetSyncer | null>(null);
 
   const initializeGrid = () => {
     const grid = new Map<string, Cell>();
@@ -38,7 +38,7 @@ const App: React.FC = () => {
       setIsConnecting(true);
 
       if (!modelRef.current) {
-        modelRef.current = new CollaborativeSpreadsheetModel(spreadsheet, nanoid());
+        modelRef.current = new SheetSyncer(spreadsheet, nanoid());
       }
 
       const newSessionId = await modelRef.current.connect('ws://localhost:8080', sessionId);

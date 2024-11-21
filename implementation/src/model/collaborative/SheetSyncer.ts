@@ -1,4 +1,4 @@
-// src/model/collaborative/CollaborativeSpreadsheetModel.ts
+// src/model/collaborative/SheetSyncer.ts
 import { SpreadSheet } from '../components/SpreadSheet';
 import { Cell } from '../components/Cell';
 import { User } from '../components/User';
@@ -19,7 +19,7 @@ export type SessionEvent = {
     sessionId?: string;
 };
 
-export class CollaborativeSpreadsheetModel {
+export class SheetSyncer {
     private spreadsheet: SpreadSheet;
     private pendingOperations: Operation[];
     private user: User;
