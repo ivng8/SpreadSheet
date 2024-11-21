@@ -200,12 +200,4 @@ export class Cell {
   public getDependencies(): Set<Cell> {
     return new Set(this.dependencies);
   }
-
-  /**
-   * Get all cells that depend on this cell
-   * @returns Set of dependent cells
-   */
-  public getDependents(): Set<Cell> {
-    return new Set(this.dependents);
-  }
 }

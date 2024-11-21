@@ -206,4 +206,16 @@ export class SpreadSheet {
     this.grid = newGrid;
     this.recalculate();
   }
+
+  public export(outputPath: string): void {
+    let outputs: Map<string, string> = new Map<string, string>;
+    const toString = (value: string | number | null): string => 
+      value === null ? '' : String(value);
+    const curr = this.copyGrid();
+    const keys = [...curr.keys()];
+    for (let i = 0; i < keys.length; i += 1) {
+      outputs.set(keys[i], toString(curr.get(keys[i])!.getValue()));
+    }
+    Utility.xlsxExport(outputs, outputPath);
+  }
 }
