@@ -6,7 +6,7 @@ import { IError } from '../interfaces/IError';
 import { VersionEntry } from 'model/version/VersionEntry';
 import { User } from './User';
 
-// Define types for our observers
+// Simple types for our observers
 type CellObserver = (cell: Cell) => void;
 type ValueChangeCallback = (newValue: any) => void;
 
@@ -117,6 +117,7 @@ export class Cell {
    * Notify all observers of changes
    */
   private notifyObservers(): void {
+    console.log(this.observers)
     this.observers.forEach(observer => observer(this));
   }
 
