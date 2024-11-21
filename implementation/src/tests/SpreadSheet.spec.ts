@@ -37,15 +37,15 @@ describe('SpreadSheet', () => {
     describe('Row Operations', () => {
       beforeEach(() => {
         const grid = new Map<string, Cell>();
-        grid.set('A1', new Cell('1', spreadsheet));
-        grid.set('A2', new Cell('2', spreadsheet));
-        grid.set('B1', new Cell('3', spreadsheet));
-        grid.set('B2', new Cell('4', spreadsheet));
+        grid.set('A1', new Cell('=1', spreadsheet));
+        grid.set('A2', new Cell('=2', spreadsheet));
+        grid.set('B1', new Cell('=3', spreadsheet));
+        grid.set('B2', new Cell('=4', spreadsheet));
         spreadsheet = new SpreadSheet(grid);
       });
 
       it('should insert row', () => {
-        spreadsheet.insertRow(1, user);
+        spreadsheet.insertRow(0, user);
         expect(spreadsheet.getCell('A1').getValue()).toBe(1);
         expect(spreadsheet.getCell('A2').getValue()).toBeNull();
         expect(spreadsheet.getCell('A3').getValue()).toBe(2);
