@@ -211,7 +211,7 @@ export class SheetSyncer {
     private applyOperation(operation: Operation): void {
         const cell = this.spreadsheet.getCell(operation.address);
         let operationUser = this.connectedUsers.get(operation.userId);
-        
+
         if (!operationUser) {
             operationUser = new User(operation.userId, operation.userId + "@example.com");
             this.connectedUsers.set(operation.userId, operationUser);

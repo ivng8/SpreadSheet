@@ -43,21 +43,35 @@ export class Utility {
      * @param filePath the filepath to the xlsx file
      * @returns
      */
-    static xlsxImport(filePath: string): SpreadSheet {
-        const workbook = XLSX.readFile(filePath);
+    static async xlsxImport(file: File): Promise<SpreadSheet> {
+        const arrayBuffer = await file.arrayBuffer(); // Wait for the buffer
+        const data = new Uint8Array(arrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const cellMap = new Map<string, Cell>();
-        let sheet: SpreadSheet = new SpreadSheet(cellMap);
+        const sheet = new SpreadSheet(cellMap);
+
+        // Process each cell in the worksheet
         Object.keys(worksheet).forEach(cellAddress => {
             // Skip non-cell keys like '!ref', '!margins', etc.
             if (cellAddress.startsWith('!')) return;
-            const cellValue = worksheet[cellAddress].v;
-            cellMap.set(cellAddress, new Cell(String(cellValue), sheet));
+
+            const cell = worksheet[cellAddress];
+            let cellValue = '';
+
+            if (cell.f) {
+                cellValue = '=' + cell.f;
+            } else if (cell.v !== undefined) {
+                cellValue = String(cell.v);
+            }
+
+            cellMap.set(cellAddress, new Cell(cellValue, sheet));
         });
+
         return sheet;
     }
-
     /**
      * writes a spreadsheet into an xlsx file
      * @param cellMap the grid representing the spreadsheet data

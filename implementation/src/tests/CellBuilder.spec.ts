@@ -144,11 +144,11 @@ describe('CellBuilder', (): void => {
       expect(cell.getValue()).toBeNull();
     });
 
-    it('should handle whitespace input', (): void => {
+    it('should preserve whitespace input on intended string data', (): void => {
       builder.setContext(['   ']);
       const cell = builder.getProduct();
       expect(cell.getInput()).toBe('   ');
-      expect(cell.getValue()).toBeNull();
+      expect(cell.getValue()).toBe('   ');
     });
 
     it('should handle special characters', (): void => {

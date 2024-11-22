@@ -113,13 +113,13 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 };
 
 const VersionHistoryHub: React.FC<VersionHistoryHubProps> = ({
-  spreadsheet,
-  selectedCell,
-  onCellUpdate,
-  user,
-  onSpreadsheetUpdate,
-  syncer,
-}) => {
+    spreadsheet,
+    selectedCell,
+    onCellUpdate,
+    user,
+    onSpreadsheetUpdate,
+    syncer,
+  }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [history, setHistory] = useState<BranchEntry[]>([]);
 
@@ -193,21 +193,13 @@ const VersionHistoryHub: React.FC<VersionHistoryHubProps> = ({
 
       <Dialog modal={false} open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-2xl h-[80vh]">
-          <DialogHeader className="flex flex-row items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
+          <DialogHeader className="flex flex-row items-start justify-between">
+            <DialogTitle className="flex items-start gap-2">
               Version History for Cell {selectedCell}
               {syncer && syncer.isConnected() && (
                 <span className="text-sm text-green-500 font-normal">• Collaborative mode</span>
               )}
             </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-              className="h-6 w-6 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </DialogHeader>
 
           <ScrollArea className="flex-1 p-4">

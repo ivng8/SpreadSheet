@@ -102,8 +102,8 @@ export class SpreadSheet {
         if (Utility.columnLetterToNumber(key[1]!) === index) {
           keys.push(digits[i]);
         }
-        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) + 1) + 
-        key[2], this.grid.get(digits[i])!);
+        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) + 1) +
+          key[2], this.grid.get(digits[i])!);
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -126,8 +126,8 @@ export class SpreadSheet {
     for (let i = 0; i < digits.length; i += 1) {
       const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
       if (Utility.columnLetterToNumber(key[1]!) > index) {
-        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) - 1) + 
-        key[2], this.grid.get(digits[i])!);
+        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) - 1) +
+          key[2], this.grid.get(digits[i])!);
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -193,19 +193,27 @@ export class SpreadSheet {
    * @param originPoint the location of the drag and drop
    * @param user the user doing it
    */
-  async import(filePath: string, originPoint: string, user: User): Promise<void> {
-    const sheet = Utility.xlsxImport(filePath);
-    const [letter, digit] = originPoint.match(/^([A-Za-z]+)(\d+)$/)!;
-    for (let i = 1; i < Utility.columnLetterToNumber(letter); i += 1) {
-      sheet.insertColumn(0, user);
+  public async import(file: File, originPoint: string, user: User, resolver?: MergeConflictResolver): Promise<void> {
+    console.log(originPoint);
+    try {
+      const sheet = await Utility.xlsxImport(file);
+      const pair = originPoint.match(/^([A-Za-z]+)(\d+)$/)!;
+      for (let i = 1; i < Utility.columnLetterToNumber(pair[1]); i += 1) {
+        sheet.insertColumn(0, user);
+      }
+      for (let j = 1; j < parseInt(pair[2]); j += 1) {
+        sheet.insertRow(0, user);
+      }
+      const manager = new CollaborationManager(this, sheet);
+      const newGrid = await manager.merge(resolver || this.resolver);
+      this.grid = newGrid;
+      this.recalculate();
+    } catch (error) {
+      console.error('Import failed:', error);
+      throw error;
     }
-    for (let j = 1; j < parseInt(digit); j += 1) {
-      sheet.insertRow(0, user);
-    }
-    const newGrid = await new CollaborationManager(this, sheet).merge(this.resolver);
-    this.grid = newGrid;
-    this.recalculate();
   }
+
 
   /**
    * writes the data in the spreadsheet into a Excel file

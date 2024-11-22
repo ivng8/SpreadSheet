@@ -30,15 +30,19 @@ export class CollaborationManager {
      * @returns a map that represents the mapping of the new spreadsheet
      */
     async merge(resolver: MergeConflictResolver): Promise<Map<string, Cell>> {
+        console.log("Starting merge process");
         const totalKeys = [...this.import1.keys(), ...this.import2.keys()];
         const uniqueKeys = [...new Set(totalKeys)];
-        let conflicts: MergeConflict[] = this.findConflicts(uniqueKeys);
+        let conflicts = this.findConflicts(uniqueKeys);
         let grid = this.noConflictMerge(uniqueKeys);
+
+        console.log("Found conflicts:", conflicts.length);
         if (conflicts.length > 0) {
             resolver.addConflicts(conflicts);
             const resolutions = await resolver.resolve();
             this.applyResolutions(resolutions, grid);
         }
+
         return grid;
     }
 
@@ -50,18 +54,26 @@ export class CollaborationManager {
     private findConflicts(uniqueKeys: string[]): MergeConflict[] {
         let conflicts: MergeConflict[] = [];
         let nonConflict: string[] = [];
+
         for (let i = 0; i < uniqueKeys.length; i += 1) {
             let cell1 = this.import1.get(uniqueKeys[i]) || null;
             let cell2 = this.import2.get(uniqueKeys[i]) || null;
-            if (cell1 === null || cell2 === null) {
+
+            // Skip if either cell is null or empty
+            if (cell1 === null || cell2 === null || cell1.getInput() === '' || cell2.getInput() === '') {
                 nonConflict.push(uniqueKeys[i]);
                 continue;
-            } else {
-                if (cell1.getInput() !== cell2.getInput()) {
-                    conflicts.push(new MergeConflict(uniqueKeys[i], cell1, cell2));
-                }
+            }
+
+            // Check for actual content conflicts
+            if (cell1.getInput() !== cell2.getInput()) {
+                console.log("Conflict found at", uniqueKeys[i]);
+                console.log("Cell1:", cell1.getInput());
+                console.log("Cell2:", cell2.getInput());
+                conflicts.push(new MergeConflict(uniqueKeys[i], cell1, cell2));
             }
         }
+
         uniqueKeys = nonConflict;
         return conflicts;
     }
@@ -72,7 +84,7 @@ export class CollaborationManager {
      * @param grid the accumulated grid that will soon be returned
      */
     private applyResolutions(resolutions: Map<string, Cell>, grid: Map<string, Cell>): void {
-        let resolution = [...resolutions.keys()]
+        const resolution = [...resolutions.keys()];
         for (let i = 0; i < resolution.length; i += 1) {
             grid.set(resolution[i], resolutions.get(resolution[i])!);
         }
@@ -84,27 +96,41 @@ export class CollaborationManager {
      * @returns a map of all the non conflicting cells between the 2 spreadsheets
      */
     private noConflictMerge(uniqueKeys: string[]): Map<string, Cell> {
-        let grid: Map<string, Cell> = new Map<string, Cell>;
+        let grid: Map<string, Cell> = new Map<string, Cell>();
         let maxRow: number = 0;
         let maxCol: number = 0;
-        for (let i = 0; uniqueKeys.length; i += 1) {
-            if (this.import1.get(uniqueKeys[1]) === undefined) {
-                grid.set(uniqueKeys[i], this.import2.get(uniqueKeys[i])!);
-            } else {
-                grid.set(uniqueKeys[i], this.import1.get(uniqueKeys[i])!);
+
+        // Process each unique key
+        for (let i = 0; i < uniqueKeys.length; i += 1) {
+            const cell1 = this.import1.get(uniqueKeys[i]);
+            const cell2 = this.import2.get(uniqueKeys[i]);
+
+            // Use import2's cell if import1's cell is null or has null value
+            if (cell1?.getValue() === null && cell2 !== undefined) {
+                console.log(uniqueKeys[i]);
+                grid.set(uniqueKeys[i], cell2);
+            } else if (cell1 !== undefined) {
+                grid.set(uniqueKeys[i], cell1);
             }
-            const [letter, digit] = uniqueKeys[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-            maxCol = Math.max(Utility.columnLetterToNumber(letter!), maxCol);
-            maxRow = Math.max(parseInt(digit), maxRow);
+
+            // Update max dimensions
+            const pair = uniqueKeys[i].match(/^([A-Za-z]+)(\d+)$/) || [];
+            if (pair.length >= 3) {
+                maxCol = Math.max(Utility.columnLetterToNumber(pair[1]), maxCol);
+                maxRow = Math.max(parseInt(pair[2]), maxRow);
+            }
         }
-        // fill empty rows and columns
+
+        // Fill empty cells in the grid
         for (let i = 1; i <= maxCol; i += 1) {
             for (let j = 1; j <= maxRow; j += 1) {
-                if (!uniqueKeys.includes(Utility.numberToColumnLetter(i) + j)) {
-                    grid.set(Utility.numberToColumnLetter(i) + j, new Cell('', this.sheet1));
+                const address = Utility.numberToColumnLetter(i) + j;
+                if (!uniqueKeys.includes(address)) {
+                    grid.set(address, new Cell('', this.sheet1));
                 }
             }
         }
+
         return grid;
     }
 }

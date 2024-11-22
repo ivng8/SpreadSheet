@@ -19,6 +19,7 @@ import { SpreadSheet } from 'model/components/SpreadSheet';
 import { User } from 'model/components/User';
 import { Utility } from 'model/Utility';
 import VersionHistoryHub from './VersionHistoryHub';
+import ImportHub from './ImportHub';
 
 interface SpreadsheetToolbarProps {
   spreadsheet: SpreadSheet;
@@ -251,26 +252,22 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
             </Button>
           </div>
 
-          {/* Formatting operations */}
+          {/* History and Import operations */}
           <div className="bg-[#2DA961] rounded-full px-4 py-2 flex items-center gap-2 shadow-xl">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-10 w-10 rounded-full text-white ${isUnderlined ? 'bg-[#169F50]' : 'hover:bg-[#169F50]'}`}
-              onClick={handleUnderline}
-              disabled={!selectedCell}
-            >
-              <Underline className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-10 w-10 rounded-full text-white ${isAlignedLeft ? 'bg-[#169F50]' : 'hover:bg-[#169F50]'}`}
-              onClick={handleAlignLeft}
-              disabled={!selectedCell}
-            >
-              <AlignLeft className="h-5 w-5" />
-            </Button>
+            <VersionHistoryHub
+              spreadsheet={spreadsheet}
+              selectedCell={selectedCell}
+              onCellUpdate={onCellUpdate}
+              user={user}
+              onSpreadsheetUpdate={onSpreadsheetUpdate}
+            />
+            <ImportHub
+              spreadsheet={spreadsheet}
+              selectedCell={selectedCell}
+              onCellUpdate={onCellUpdate}
+              user={user}
+              onSpreadsheetUpdate={onSpreadsheetUpdate}
+            />
           </div>
         </div>
 
@@ -297,13 +294,6 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
           >
             <Users className="h-5 w-5" />
           </Button>
-          <VersionHistoryHub
-            spreadsheet={spreadsheet}
-            selectedCell={selectedCell}
-            onCellUpdate={onCellUpdate}
-            user={user}
-            onSpreadsheetUpdate={onSpreadsheetUpdate}
-          />
         </div>
       </div>
     </div>
