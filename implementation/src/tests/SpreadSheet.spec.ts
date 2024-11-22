@@ -41,12 +41,7 @@ describe('SpreadSheet', () => {
       });
 
       it('should insert row', () => {
-<<<<<<< HEAD
-        spreadsheet.insertRow(0, user);
-=======
         spreadsheet.insertRow(1, user);
-        
->>>>>>> 86f670f5f319984b250f7c6a94ea2e74eefd10ed
         expect(spreadsheet.getCell('A1').getValue()).toBe(1);
         expect(spreadsheet.getCell('A2').getValue()).toBeNull();
         expect(spreadsheet.getCell('A3').getValue()).toBe(2);
