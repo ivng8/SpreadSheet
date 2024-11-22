@@ -203,3 +203,4 @@ export const CellComponent = React.memo(CellView, (prevProps, nextProps) => {
 });
 
 export default CellComponent;
+

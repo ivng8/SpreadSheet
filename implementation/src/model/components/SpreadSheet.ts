@@ -44,28 +44,64 @@ export class SpreadSheet {
    * @param index the index at which the row is to be inserted
    * @param user the user
    */
+
   public insertRow(index: number, user: User): void {
     this.updateReferences(index, 0, 1, user);
-    const digits = Array.from(this.grid.keys());
-    let keys: string[] = [];
-    let ans: Map<string, Cell> = new Map<string, Cell>();
-    for (let i = 0; i < digits.length; i += 1) {
-      const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (parseInt(key[2]) >= index) {
-        if (parseInt(key[2]) === index) {
-          keys.push(digits[i]);
-        }
-        ans.set(key[1]! + (parseInt(key[2]) + 1), this.grid.get(digits[i])!);
-      } else {
-        ans.set(digits[i], this.grid.get(digits[i])!);
+
+    // Get highest row number
+    const lastRow = Math.max(
+      ...Array.from(this.grid.keys()).map(addr => {
+        const rowNum = parseInt(addr.match(/\d+$/)?.[0] || '0');
+        return rowNum;
+      })
+    );
+
+    // Add new row at end
+    const newRowNum = lastRow + 1;
+    const allCols = new Set(
+      Array.from(this.grid.keys())
+        .map(addr => addr.match(/^([A-Za-z]+)/)?.[1])
+        .filter(Boolean)
+    );
+    for (const col of allCols) {
+      const newAddr = `${col}${newRowNum}`;
+      this.grid.set(newAddr, new Director().makeCell('', this));
+    }
+
+    const addresses = Array.from(this.grid.keys());
+    const movingAddresses = new Set<string>();
+
+    for (const address of addresses) {
+      const [, colStr, rowStr] = address.match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (!colStr || !rowStr) continue;
+
+      const rowNum = parseInt(rowStr);
+      if (rowNum >= index) {
+        movingAddresses.add(address);
       }
     }
-    for (let i = 0; i < keys.length; i += 1) {
-      ans.set(keys[i], new Director().makeCell('', this));
-    }
-    this.grid = ans;
-  }
 
+    const sortedAddresses = Array.from(movingAddresses).sort((a, b) => {
+      const rowA = parseInt(a.match(/\d+$/)?.[0] || '0');
+      const rowB = parseInt(b.match(/\d+$/)?.[0] || '0');
+      return rowB - rowA;
+    });
+
+    for (const address of sortedAddresses) {
+      const [, colStr, rowStr] = address.match(/^([A-Za-z]+)(\d+)$/) || [];
+      const rowNum = parseInt(rowStr);
+      const newAddress = `${colStr}${rowNum + 1}`;
+
+      const currentCell = this.grid.get(address);
+      if (currentCell) {
+        const targetCell = this.grid.get(newAddress);
+        if (targetCell) {
+          targetCell.updateContents(currentCell.getInput(), user);
+        }
+        currentCell.updateContents('', user);
+      }
+    }
+  }
   /**
    * deletes a row and updates the other addresses and references
    * @param index the index at which the row is to be deleted
@@ -73,17 +109,55 @@ export class SpreadSheet {
    */
   public deleteRow(index: number, user: User): void {
     this.updateReferences(index, 0, -1, user);
-    const digits = Array.from(this.grid.keys());
-    let ans: Map<string, Cell> = new Map<string, Cell>();
-    for (let i = 0; i < digits.length; i += 1) {
-      const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (parseInt(key[2]) > index) {
-        ans.set(key[1]! + (parseInt(key[2]) - 1), this.grid.get(digits[i])!);
-      } else {
-        ans.set(digits[i], this.grid.get(digits[i])!);
+
+    const addresses = Array.from(this.grid.keys());
+
+    // Clear row being deleted
+    for (const address of addresses) {
+      const [, colStr, rowStr] = address.match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (!colStr || !rowStr) continue;
+
+      const rowNum = parseInt(rowStr);
+      if (rowNum === index) {
+        const cell = this.grid.get(address);
+        if (cell) {
+          cell.updateContents('', user);
+        }
       }
     }
-    this.grid = ans;
+
+    // Move cells up
+    for (const address of addresses) {
+      const [, colStr, rowStr] = address.match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (!colStr || !rowStr) continue;
+
+      const rowNum = parseInt(rowStr);
+      if (rowNum > index) {
+        const currentCell = this.grid.get(address);
+        const newAddress = `${colStr}${rowNum - 1}`;
+        const targetCell = this.grid.get(newAddress);
+
+        if (currentCell && targetCell) {
+          targetCell.updateContents(currentCell.getInput(), user);
+          currentCell.updateContents('', user);
+        }
+      }
+    }
+
+    // Remove last row
+    const lastRow = Math.max(
+      ...Array.from(this.grid.keys()).map(addr => {
+        return parseInt(addr.match(/\d+$/)?.[0] || '0');
+      })
+    );
+
+    const lastRowAddresses = Array.from(this.grid.keys()).filter(addr => {
+      return parseInt(addr.match(/\d+$/)?.[0] || '0') === lastRow;
+    });
+
+    for (const addr of lastRowAddresses) {
+      this.grid.delete(addr);
+    }
   }
 
   /**
@@ -91,54 +165,123 @@ export class SpreadSheet {
    * @param index the index at which the column is to be inserted
    * @param user the user
    */
+
   public insertColumn(index: number, user: User): void {
     this.updateReferences(index, 1, 0, user);
-    const digits = Array.from(this.grid.keys());
-    let keys: string[] = [];
-    let ans: Map<string, Cell> = new Map<string, Cell>();
-    for (let i = 0; i < digits.length; i += 1) {
-      const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (Utility.columnLetterToNumber(key[1]!) >= index) {
-        if (Utility.columnLetterToNumber(key[1]!) === index) {
-          keys.push(digits[i]);
-        }
-        ans.set(
-          Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) + 1) + key[2],
-          this.grid.get(digits[i])!
-        )
-      } else {
-        ans.set(digits[i], this.grid.get(digits[i])!);
+    const lastColNum = Math.max(
+      ...Array.from(this.grid.keys()).map(addr => {
+        const [, colStr] = addr.match(/^([A-Za-z]+)/) || [];
+        return Utility.columnLetterToNumber(colStr || 'A');
+      })
+    );
+
+    // Add new empty column at end
+    const newColIndex = lastColNum + 1;
+    const allRows = new Set(
+      Array.from(this.grid.keys())
+        .map(addr => addr.match(/\d+$/)?.[0])
+        .filter(Boolean)
+    );
+    for (const row of allRows) {
+      const newAddr = `${Utility.numberToColumnLetter(newColIndex)}${row}`;
+      this.grid.set(newAddr, new Director().makeCell('', this));
+    }
+
+    // Move cells
+    const addresses = Array.from(this.grid.keys());
+    const movingAddresses = new Set<string>();
+
+    for (const address of addresses) {
+      const [, colStr, rowStr] = address.match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (!colStr || !rowStr) continue;
+
+      const colNum = Utility.columnLetterToNumber(colStr);
+      if (colNum >= index) {
+        movingAddresses.add(address);
       }
     }
-    for (let i = 0; i < keys.length; i += 1) {
-      ans.set(keys[i], new Director().makeCell('', this));
-    }
-    this.grid = ans;
-  }
 
+    const sortedAddresses = Array.from(movingAddresses).sort((a, b) => {
+      const colA = Utility.columnLetterToNumber(a.match(/^([A-Za-z]+)/)?.[1] || '');
+      const colB = Utility.columnLetterToNumber(b.match(/^([A-Za-z]+)/)?.[1] || '');
+      return colB - colA;
+    });
+
+    for (const address of sortedAddresses) {
+      const [, colStr, rowStr] = address.match(/^([A-Za-z]+)(\d+)$/) || [];
+      const colNum = Utility.columnLetterToNumber(colStr);
+      const newAddress = `${Utility.numberToColumnLetter(colNum + 1)}${rowStr}`;
+
+      const currentCell = this.grid.get(address);
+      if (currentCell) {
+        const targetCell = this.grid.get(newAddress);
+        if (targetCell) {
+          targetCell.updateContents(currentCell.getInput(), user);
+        }
+        currentCell.updateContents('', user);
+      }
+    }
+  }
   /**
    * deletes a column and updates the other addresses and references
    * @param index the index at which the column is to be deleted
    * @param user the user
    */
+
   public deleteColumn(index: number, user: User): void {
     this.updateReferences(index, -1, 0, user);
-    const digits = Array.from(this.grid.keys());
-    let ans: Map<string, Cell> = new Map<string, Cell>();
-    for (let i = 0; i < digits.length; i += 1) {
-      const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (Utility.columnLetterToNumber(key[1]!) > index) {
-        ans.set(
-          Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) - 1) + key[2],
-          this.grid.get(digits[i])!
-        );
-      } else {
-        ans.set(digits[i], this.grid.get(digits[i])!);
+
+    const addresses = Array.from(this.grid.keys());
+
+    // Clear column being deleted
+    for (const address of addresses) {
+      const [, colStr, rowStr] = address.match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (!colStr || !rowStr) continue;
+
+      const colNum = Utility.columnLetterToNumber(colStr);
+      if (colNum === index) {
+        const cell = this.grid.get(address);
+        if (cell) {
+          cell.updateContents('', user);
+        }
       }
     }
-    this.grid = ans;
-  }
 
+    // Move cells left
+    for (const address of addresses) {
+      const [, colStr, rowStr] = address.match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (!colStr || !rowStr) continue;
+
+      const colNum = Utility.columnLetterToNumber(colStr);
+      if (colNum > index) {
+        const currentCell = this.grid.get(address);
+        const newAddress = `${Utility.numberToColumnLetter(colNum - 1)}${rowStr}`;
+        const targetCell = this.grid.get(newAddress);
+
+        if (currentCell && targetCell) {
+          targetCell.updateContents(currentCell.getInput(), user);
+          currentCell.updateContents('', user);
+        }
+      }
+    }
+
+    // Remove last column
+    const lastColNum = Math.max(
+      ...Array.from(this.grid.keys()).map(addr => {
+        const [, colStr] = addr.match(/^([A-Za-z]+)/) || [];
+        return Utility.columnLetterToNumber(colStr || 'A');
+      })
+    );
+
+    const lastColAddresses = Array.from(this.grid.keys()).filter(addr => {
+      const [, colStr] = addr.match(/^([A-Za-z]+)/) || [];
+      return Utility.columnLetterToNumber(colStr || 'A') === lastColNum;
+    });
+
+    for (const addr of lastColAddresses) {
+      this.grid.delete(addr);
+    }
+  }
   /**
    * clears the contents of a cell
    * @param address the address of the cell to be cleared
@@ -238,5 +381,21 @@ export class SpreadSheet {
       outputs.set(keys[i], toString(curr.get(keys[i])!.getValue()));
     }
     Utility.xlsxExport(outputs, outputPath);
+  }
+  public getLength(): number {
+    return Math.max(
+      ...Array.from(this.grid.keys()).map(addr => {
+        const [, colStr] = addr.match(/^([A-Za-z]+)/) || [];
+        return Utility.columnLetterToNumber(colStr || 'A');
+      })
+    );
+  }
+
+  public getHeight(): number {
+    return Math.max(
+      ...Array.from(this.grid.keys()).map(addr => {
+        return parseInt(addr.match(/\d+$/)?.[0] || '0');
+      })
+    );
   }
 }
