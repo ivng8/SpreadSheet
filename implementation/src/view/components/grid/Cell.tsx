@@ -100,7 +100,6 @@ const CellView: React.FC<CellProps> = ({
           handleCellUpdate(inputValue);
           e.preventDefault();
         }
-        console.log(spread)
         break;
       case 'Escape':
         if (isEditing) {
