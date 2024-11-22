@@ -173,17 +173,19 @@ export class SpreadSheet {
         const row = parseInt(reference.match(/\d+/)[0]);
         if (x === 0) {
           if (row >= point) {
-            return `REF(${column}${row + y})`;
+            return `=REF(${column}${row + y})`;
           }
         } else {
           if (Utility.columnLetterToNumber(column) >= point) {
-            console.log(Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x));
-            return `REF(${Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x)}${row})`;
+            console.log(`=REF(${Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x)}${row})`);
+            return `=REF(${Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x)}${row})`;
           }
         }
         return match;
       });
+      console.log(curr);
       if (!(curr === this.grid.get(digits[i])!.getInput())) {
+        console.log('here');
         this.grid.get(digits[i])!.updateContents(curr, user);
       }
     }

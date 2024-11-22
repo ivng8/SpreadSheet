@@ -80,7 +80,7 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
         maxCol = Math.max(maxCol, col);
       }
     });
-    console.log("rerendered")
+
     setGridDimensions({
       totalRows: maxRow + 2,
       totalCols: maxCol + 2

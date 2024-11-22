@@ -13,6 +13,7 @@ const App: React.FC = () => {
   const [sessionCode, setSessionCode] = useState('');
   const [currentSessionCode, setCurrentSessionCode] = useState<string | null>(null);
   const modelRef = useRef<SheetSyncer | null>(null);
+  const [updateCounter, setUpdateCounter] = useState(0);
 
   const initializeGrid = () => {
     const grid = new Map<string, Cell>();
@@ -32,6 +33,10 @@ const App: React.FC = () => {
 
   const [spreadsheet] = useState(() => initializeGrid());
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
+
+  const handleSpreadsheetUpdate = () => {
+    setUpdateCounter(prev => prev + 1);
+  };
 
   const connectToSession = async (sessionId: string | null = null) => {
     try {
@@ -61,7 +66,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Subscribe to remote changes
   useEffect(() => {
     if (!modelRef.current) return;
 
@@ -69,6 +73,7 @@ const App: React.FC = () => {
       const cell = spreadsheet.getCell(operation.address);
       if (cell) {
         modelRef.current?.handleRemoteOperation(operation);
+        handleSpreadsheetUpdate();
       }
     };
 
@@ -79,6 +84,7 @@ const App: React.FC = () => {
   const handleCellUpdate = (address: string, newValue: string) => {
     try {
       modelRef.current?.updateCell(address, newValue);
+      handleSpreadsheetUpdate();
     } catch (error) {
       console.error(`Error updating cell ${address}:`, error);
     }
@@ -149,9 +155,11 @@ const App: React.FC = () => {
           }
         }}
         user={modelRef.current?.getUser()}
+        onSpreadsheetUpdate={handleSpreadsheetUpdate}
       />
       <div className="flex-1 overflow-hidden">
         <Grid
+          key={updateCounter}
           spreadsheet={spreadsheet}
           selectedCell={selectedCell}
           onCellUpdate={handleCellUpdate}

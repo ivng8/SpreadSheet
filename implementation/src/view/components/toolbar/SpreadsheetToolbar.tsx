@@ -27,6 +27,7 @@ interface SpreadsheetToolbarProps {
   isConnected?: boolean;
   onShareClick?: () => void;
   user: User;
+  onSpreadsheetUpdate: () => void;
 }
 
 const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
@@ -37,6 +38,7 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
   isConnected = false,
   onShareClick,
   user,
+  onSpreadsheetUpdate,
 }) => {
   const [clipboardContent, setClipboardContent] = useState<string>('');
   const [isUnderlined, setIsUnderlined] = useState(false);
@@ -48,6 +50,7 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
         const cell = spreadsheet.getCell(selectedCell);
         setClipboardContent(cell.getInput());
         spreadsheet.clearCell(selectedCell, user);
+        onSpreadsheetUpdate();
       } catch (error) {
         console.error('Cut operation failed:', error);
       }
@@ -69,6 +72,7 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
     if (selectedCell && clipboardContent) {
       try {
         onCellUpdate(selectedCell, clipboardContent);
+        onSpreadsheetUpdate();
       } catch (error) {
         console.error('Paste operation failed:', error);
       }
@@ -80,6 +84,7 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
       const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
       const colIndex = Utility.columnLetterToNumber(letter);
       spreadsheet.insertColumn(colIndex, user);
+      onSpreadsheetUpdate();
     }
   };
 
@@ -88,6 +93,7 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
       const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
       const colIndex = Utility.columnLetterToNumber(letter);
       spreadsheet.insertColumn(colIndex + 1, user);
+      onSpreadsheetUpdate();
     }
   };
 
@@ -96,6 +102,7 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
       const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
       const colIndex = Utility.columnLetterToNumber(letter);
       spreadsheet.deleteColumn(colIndex, user);
+      onSpreadsheetUpdate();
     }
   };
 
@@ -103,15 +110,15 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
     if (selectedCell) {
       const rowIndex = parseInt(selectedCell.match(/\d+/)?.[0] || '0');
       spreadsheet.insertRow(rowIndex, user);
+      onSpreadsheetUpdate();
     }
-    console.log(spreadsheet);
   };
 
   const handleAddRowBelow = () => {
     if (selectedCell) {
       const rowIndex = parseInt(selectedCell.match(/\d+/)?.[0] || '0');
-      console.log(rowIndex)
       spreadsheet.insertRow(rowIndex + 1, user);
+      onSpreadsheetUpdate();
     }
   };
 
@@ -119,15 +126,18 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
     if (selectedCell) {
       const rowIndex = parseInt(selectedCell.match(/\d+/)?.[0] || '0');
       spreadsheet.deleteRow(rowIndex, user);
+      onSpreadsheetUpdate();
     }
   };
 
   const handleUnderline = () => {
     setIsUnderlined(!isUnderlined);
+    onSpreadsheetUpdate();
   };
 
   const handleAlignLeft = () => {
     setIsAlignedLeft(!isAlignedLeft);
+    onSpreadsheetUpdate();
   };
 
   return (
