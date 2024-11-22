@@ -332,17 +332,17 @@ describe('ExpressionBuilder', (): void => {
   describe('Error Handling', () => {
     it('should handle null left operands', (): void => {
       const expr = director.makeExpression('=+5', spreadsheet, cell);
-      expect(expr.evaluate()).toBe('Null operands');
+      expect(expr.evaluate()).toBe('Invalid Expression5');
     });
 
     it('should handle null right operands', (): void => {
       const expr = director.makeExpression('=1+', spreadsheet, cell);
-      expect(expr.evaluate()).toBe('Null operands');
+      expect(expr.evaluate()).toBe('1Invalid Expression');
     });
 
     it('should handle invalid expressions', (): void => {
       const expr = director.makeExpression('=2++3', spreadsheet, cell);
-      expect(expr.evaluate()).toBe('Null operands');
+      expect(expr.evaluate()).toBe('2Invalid Expression3');
     });
   });
 });

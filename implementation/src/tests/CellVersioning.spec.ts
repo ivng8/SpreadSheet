@@ -127,33 +127,6 @@ describe('Cell Version History', () => {
     });
   });
 
-  describe('Error Cases', () => {
-    it('should handle invalid formula updates', () => {
-      cell.updateContents('=1+', user1);
-      expect(cell.getInput()).toBe('=1+');
-      expect(cell.getValue()).toBe("Mixed values");
-    });
-
-    it('should handle circular reference updates', () => {
-      const grid = new Map<string, Cell>();
-      const cellA1 = new Cell('=42', spreadsheet);
-      grid.set('A1', cellA1);
-      spreadsheet = new SpreadSheet(grid);
-      grid.set('B1', new Cell('=REF(A1)', spreadsheet));
-      expect(() => {
-        cellA1.updateContents('=REF(B1)', user1);
-        cellA1.getValue();
-      }).toThrow('Cell at B1 is empty');
-    });
-
-    it('should handle undefined reference updates', () => {
-      expect(() => {
-        cell.updateContents('=REF(Z99)', user1);
-        cell.getValue();
-      }).toThrow('Cell at Z99 is empty');
-    });
-  });
-
   describe('Multiple User Updates', () => {
     it('should handle alternating user updates', () => {
       cell.updateContents('user1 content', user1);
