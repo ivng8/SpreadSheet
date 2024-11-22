@@ -50,12 +50,12 @@ export class SpreadSheet {
     let keys: string[] = [];
     let ans: Map<string, Cell> = new Map<string, Cell>;
     for (let i = 0; i < digits.length; i += 1) {
-      const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (parseInt(key[2]) >= index) {
-        if (parseInt(key[2]) === index) {
+      const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (parseInt(digit) >= index) {
+        if (parseInt(digit) === index) {
           keys.push(digits[i]);
         }
-        ans.set(key[1]! + (parseInt(key[2]) + 1), this.grid.get(digits[i])!);
+        ans.set(letter! + (parseInt(digit) + 1), this.grid.get(digits[i])!);
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -76,9 +76,9 @@ export class SpreadSheet {
     const digits = Array.from(this.grid.keys());
     let ans: Map<string, Cell> = new Map<string, Cell>;
     for (let i = 0; i < digits.length; i += 1) {
-      const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (parseInt(key[2]) > index) {
-        ans.set(key[1]! + (parseInt(key[2]) - 1), this.grid.get(digits[i])!);
+      const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (parseInt(digit) > index) {
+        ans.set(letter! + (parseInt(digit) - 1), this.grid.get(digits[i])!);
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -97,13 +97,13 @@ export class SpreadSheet {
     let keys: string[] = [];
     let ans: Map<string, Cell> = new Map<string, Cell>;
     for (let i = 0; i < digits.length; i += 1) {
-      const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (Utility.columnLetterToNumber(key[1]!) >= index) {
-        if (Utility.columnLetterToNumber(key[1]!) === index) {
+      const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (Utility.columnLetterToNumber(letter!) >= index) {
+        if (Utility.columnLetterToNumber(letter!) === index) {
           keys.push(digits[i]);
         }
-        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) + 1) + 
-        key[2], this.grid.get(digits[i])!);
+        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(letter!) + 1) + 
+        digit, this.grid.get(digits[i])!);
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -124,10 +124,10 @@ export class SpreadSheet {
     const digits = Array.from(this.grid.keys());
     let ans: Map<string, Cell> = new Map<string, Cell>;
     for (let i = 0; i < digits.length; i += 1) {
-      const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
-      if (Utility.columnLetterToNumber(key[1]!) > index) {
-        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) - 1) + 
-        key[2], this.grid.get(digits[i])!);
+      const [letter, digit] = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
+      if (Utility.columnLetterToNumber(letter!) > index) {
+        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(letter!) - 1) + 
+        digit, this.grid.get(digits[i])!);
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -209,7 +209,7 @@ export class SpreadSheet {
 
   public export(outputPath: string): void {
     let outputs: Map<string, string> = new Map<string, string>;
-    const toString = (value: string | number | null): string => 
+    const toString = (value: string | number | null): string =>
       value === null ? '' : String(value);
     const curr = this.copyGrid();
     const keys = [...curr.keys()];
