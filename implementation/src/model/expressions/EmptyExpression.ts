@@ -8,8 +8,4 @@ export class EmptyExpression implements IExpression {
   public evaluate(): unknown {
     return null;
   }
-
-  public display(): string {
-    return '';
-  }
 }

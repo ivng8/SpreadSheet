@@ -17,8 +17,4 @@ export class StringConstant implements IExpression {
   public evaluate(): string {
     return this.value;
   }
-
-  public display(): string {
-    return this.value;
-  }
 }

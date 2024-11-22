@@ -6,7 +6,11 @@ import { IError } from '../interfaces/IError';
  */
 export abstract class AError implements IError {
 
+<<<<<<< HEAD
   public evaluate(): any {
+=======
+  public evaluate(): string {
+>>>>>>> 7555dd6b3e0236a46975d9764d95ffabc04fa126
     return 'Error';
   }
 }

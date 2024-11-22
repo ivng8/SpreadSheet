@@ -6,7 +6,7 @@ import { AError } from '../errors/AError';
  */
 export class InvalidRange extends AError {
   
-  public display(): string {
+  public evaluate(): string {
     return 'Invalid Range';
   }
 }

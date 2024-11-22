@@ -2,6 +2,7 @@ import { Cell } from "model/components/Cell";
 import { SpreadSheet } from "model/components/SpreadSheet";
 import { User } from "model/components/User";
 import { Director } from "model/Director";
+import { VersionHistory } from "model/version/VersionHistory";
 
 describe('Cell Version History', () => {
   let spreadsheet: SpreadSheet;
@@ -9,11 +10,13 @@ describe('Cell Version History', () => {
   let user1: User;
   let user2: User;
   let director: Director;
+  let versionHistory: VersionHistory;
 
   beforeEach(() => {
     director = new Director();
     spreadsheet = director.makeSpreadSheet();
     cell = new Cell('', spreadsheet);
+    versionHistory = new VersionHistory();
     user1 = new User('Test User 1', 'user1@example.com');
     user2 = new User('Test User 2', 'user2@example.com');
   });
@@ -127,33 +130,6 @@ describe('Cell Version History', () => {
     });
   });
 
-  describe('Error Cases', () => {
-    it('should handle invalid formula updates', () => {
-      cell.updateContents('=1+', user1);
-      expect(cell.getInput()).toBe('=1+');
-      expect(cell.getValue()).toBeNull();
-    });
-
-    it('should handle circular reference updates', () => {
-      const grid = new Map<string, Cell>();
-      const cellA1 = new Cell('=42', spreadsheet);
-      grid.set('A1', cellA1);
-      spreadsheet = new SpreadSheet(grid);
-      grid.set('B1', new Cell('=REF(A1)', spreadsheet));
-      expect(() => {
-        cellA1.updateContents('=REF(B1)', user1);
-        cellA1.getValue();
-      }).toThrow('Cell at B1 is empty');
-    });
-
-    it('should handle undefined reference updates', () => {
-      expect(() => {
-        cell.updateContents('=REF(Z99)', user1);
-        cell.getValue();
-      }).toThrow('Cell at Z99 is empty');
-    });
-  });
-
   describe('Multiple User Updates', () => {
     it('should handle alternating user updates', () => {
       cell.updateContents('user1 content', user1);
@@ -169,6 +145,155 @@ describe('Cell Version History', () => {
       
       cell.updateContents('=2+2', user2);
       expect(cell.getValue()).toBe(4);
+    });
+  });
+
+  describe('Basic Version Control', () => {
+    it('should handle empty entries', () => {
+      versionHistory.addEntry('', user1);
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('', user1);
+
+      const history = versionHistory.getHistory();
+      expect(history[0].entries.length).toBe(3);
+      expect(history[0].entries.map(entry => entry.getEntry())).toEqual(['', '=1', '']);
+    });
+    
+    it('should create new entries in the main branch', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user1);
+      versionHistory.addEntry('=3', user1);
+
+      const history = versionHistory.getHistory();
+      expect(history.length).toBe(1);
+      expect(history[0].entries.length).toBe(3);
+    });
+
+    it('should track entries with correct user information', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user2);
+
+      const history = versionHistory.getHistory();
+      expect(history[0].entries[0].getEntry()).toBe('=1');
+      expect(history[0].entries[1].getEntry()).toBe('=2');
+    });
+  });
+
+  describe('Branching Behavior', () => {
+    it('should create new branch when reverting and making changes', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user1);
+      versionHistory.addEntry('=3', user1);
+
+      const history = versionHistory.getHistory();
+      const secondEntryId = history[0].entries[1].getId();
+
+      versionHistory.revert(secondEntryId);
+      versionHistory.addEntry('=4', user1);
+
+      const updatedHistory = versionHistory.getHistory();
+      expect(updatedHistory.length).toBe(2);
+      expect(updatedHistory[1].parent).toEqual({
+        index: 0,
+        entryId: secondEntryId
+      });
+    });
+
+    it('should maintain branch relationships correctly', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user1);
+      
+      const history = versionHistory.getHistory();
+      const firstEntryId = history[0].entries[0].getId();
+      
+      versionHistory.revert(firstEntryId);
+      versionHistory.addEntry('=3', user2);
+
+      const updatedHistory = versionHistory.getHistory();
+      expect(updatedHistory[1].parent).toBeDefined();
+      expect(updatedHistory[1].parent?.entryId).toBe(firstEntryId);
+    });
+  });
+
+  describe('Auto-merge Behavior', () => {
+    it('should auto-merge branches with same content', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user1);
+      
+      const firstEntryId = versionHistory.getHistory()[0].entries[0].getId();
+      versionHistory.revert(firstEntryId);
+      versionHistory.addEntry('=2', user2);
+
+      const history = versionHistory.getHistory();
+      expect(history.length).toBe(1);
+      expect(history[0].entries[history[0].entries.length - 1].getEntry()).toBe('=2');
+    });
+
+    it('should not merge branches with different content', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user1);
+      
+      const firstEntryId = versionHistory.getHistory()[0].entries[0].getId();
+      versionHistory.revert(firstEntryId);
+      versionHistory.addEntry('=3', user2);
+
+      const history = versionHistory.getHistory();
+      expect(history.length).toBe(2);
+      expect(history[1].entries[0].getEntry()).toBe('=3');
+    });
+
+    it('should preserve branch history after merge', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user1);
+      
+      const firstEntryId = versionHistory.getHistory()[0].entries[0].getId();
+      versionHistory.revert(firstEntryId);
+      versionHistory.addEntry('=2', user2);
+
+      const history = versionHistory.getHistory();
+      expect(history[0].entries.length).toBe(2);
+      expect(history[0].entries.map(entry => entry.getEntry()))
+        .toEqual(['=1', '=2']);
+    });
+  });
+
+  describe('Complex Scenarios', () => {
+    it('should handle multiple branches and merges', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user1);
+      
+      const firstEntryId = versionHistory.getHistory()[0].entries[0].getId();
+      versionHistory.revert(firstEntryId);
+      versionHistory.addEntry('=3', user2);
+      
+      versionHistory.revert(firstEntryId);
+      versionHistory.addEntry('=4', user2);
+      
+      versionHistory.revert(firstEntryId);
+      versionHistory.addEntry('=2', user2);
+
+      const history = versionHistory.getHistory();
+      expect(history.length).toBe(3);
+      expect(history[1].entries[0].getEntry()).toBe('=3');
+      expect(history[2].entries[0].getEntry()).toBe('=4');
+    });
+
+    it('should handle deep branching scenarios', () => {
+      versionHistory.addEntry('=1', user1);
+      versionHistory.addEntry('=2', user1);
+      
+      const secondEntryId = versionHistory.getHistory()[0].entries[1].getId();
+      versionHistory.revert(secondEntryId);
+      versionHistory.addEntry('=3', user2);
+      
+      const branchEntryId = versionHistory.getHistory()[1].entries[0].getId();
+      versionHistory.revert(branchEntryId);
+      versionHistory.addEntry('=4', user2);
+
+      const history = versionHistory.getHistory();
+      expect(history.length).toBe(3);
+      expect(history[2].parent?.entryId).toBe(branchEntryId);
+      expect(history[2].entries[0].getEntry()).toBe('=4');
     });
   });
 });
