@@ -42,6 +42,7 @@ describe('SpreadSheet', () => {
 
       it('should insert row', () => {
         spreadsheet.insertRow(1, user);
+        
         expect(spreadsheet.getCell('A1').getValue()).toBe(1);
         expect(spreadsheet.getCell('A2').getValue()).toBeNull();
         expect(spreadsheet.getCell('A3').getValue()).toBe(2);
