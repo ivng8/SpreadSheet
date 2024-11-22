@@ -19,6 +19,7 @@ cd team711-project
 
 2. Install dependencies:
 ```bash
+cd implementation
 pnpm install
 ```
 
@@ -26,6 +27,9 @@ pnpm install
 
 Start the development server:
 ```bash
+cd server
+pnpm start
+cd ..
 pnpm run dev
 ```
 
