@@ -48,7 +48,7 @@ export class ExpressionBuilder implements IBuilder {
   }
 
   public setContext(text: string[]): void {
-    this.context = text[0].replace(/\s+/g, '');
+    this.context = text[0];
     this.makeExpression();
   }
 
@@ -62,6 +62,7 @@ export class ExpressionBuilder implements IBuilder {
       return;
     }
     if (this.context.charAt(0) === '=') {
+      this.context = this.context.replace(/\s+/g, '');
       this.context = this.context.substring(1, this.context.length);
       this.checkParentheses();
       this.simpleExpression();
