@@ -167,7 +167,7 @@ export class Cell {
     // If the value has changed, notify observers
     const newValue = this.getValue();
     if (oldValue !== newValue) {
-      this.notifyValueObservers(this.expression);
+      this.notifyValueObservers(this.expression.evaluate());
     }
 
     // Notify general observers

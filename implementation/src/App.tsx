@@ -42,7 +42,7 @@ const App: React.FC = () => {
       }
 
       const newSessionId = await modelRef.current.connect('ws://localhost:8080', sessionId);
-      setCurrentSessionCode(newSessionId.slice(0, 6));
+      setCurrentSessionCode(newSessionId);
       setShowJoinDialog(false);
     } catch (error) {
       console.error('Failed to connect:', error);
@@ -137,39 +137,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <div className="bg-gray-100 p-2 flex items-center justify-between border-b">
-        <div className="text-sm text-gray-600">
-          {modelRef.current?.isConnected() ? (
-            <>
-              <span className="text-green-600">●</span> Connected
-              <span className="ml-2">Session Code: {currentSessionCode}</span>
-              <span className="ml-2">User: {modelRef.current.getUser().getName().slice(0, 6)}</span>
-            </>
-          ) : (
-            <>
-              <span className="text-red-600">●</span> Disconnected
-            </>
-          )}
-        </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className="text-sm text-blue-600 hover:text-blue-800"
-            onClick={() => {
-              if (currentSessionCode) {
-                navigator.clipboard.writeText(currentSessionCode);
-              }
-            }}
-          >
-            Copy Session Code
-          </button>
-          <button
-            className="text-sm text-gray-600 hover:text-gray-800"
-            onClick={() => setShowJoinDialog(true)}
-          >
-            Join Different Session
-          </button>
-        </div>
-      </div>
       <SpreadsheetToolbar
         spreadsheet={spreadsheet}
         selectedCell={selectedCell}

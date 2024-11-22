@@ -35,7 +35,7 @@ export class ReferenceExpression implements IExpression {
       this.currentCell.catchErrors(new InvalidExpression());
       return null;
     }
-
+    console.log(this.referencedCell.getValue())
     return this.referencedCell.getValue();
   }
 }

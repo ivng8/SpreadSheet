@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  Edit2,
-  Search,
   Pencil,
   Scissors,
   Copy,
   ClipboardPaste,
+  ArrowRight,
+  ArrowLeft,
+  ArrowUp,
+  ArrowDown,
   Underline,
   AlignLeft,
   Users,
   Share2,
+  Trash2,
 } from 'lucide-react';
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import { User } from 'model/components/User';
+import { Utility } from 'model/Utility';
 
 interface SpreadsheetToolbarProps {
   spreadsheet: SpreadSheet;
@@ -22,7 +26,7 @@ interface SpreadsheetToolbarProps {
   sessionCode?: string | null;
   isConnected?: boolean;
   onShareClick?: () => void;
-  user: User
+  user: User;
 }
 
 const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
@@ -34,27 +38,16 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
   onShareClick,
   user,
 }) => {
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [isSearchMode, setIsSearchMode] = useState(false);
   const [clipboardContent, setClipboardContent] = useState<string>('');
   const [isUnderlined, setIsUnderlined] = useState(false);
   const [isAlignedLeft, setIsAlignedLeft] = useState(false);
-
-  const handleEditMode = () => {
-    setIsEditMode(!isEditMode);
-  };
-
-  const handleSearch = () => {
-    setIsSearchMode(!isSearchMode);
-    // TODO: Search Functionality
-  };
 
   const handleCut = () => {
     if (selectedCell) {
       try {
         const cell = spreadsheet.getCell(selectedCell);
         setClipboardContent(cell.getInput());
-        spreadsheet.clearCell(selectedCell, user); // Temp null for users cause not implemented yet
+        spreadsheet.clearCell(selectedCell, user);
       } catch (error) {
         console.error('Cut operation failed:', error);
       }
@@ -82,50 +75,67 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
     }
   };
 
+  const handleAddColumnLeft = () => {
+    if (selectedCell) {
+      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter);
+      spreadsheet.insertColumn(colIndex, user);
+    }
+  };
+
+  const handleAddColumnRight = () => {
+    if (selectedCell) {
+      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter);
+      spreadsheet.insertColumn(colIndex + 1, user);
+    }
+  };
+
+  const handleDeleteColumn = () => {
+    if (selectedCell) {
+      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter);
+      spreadsheet.deleteColumn(colIndex, user);
+    }
+  };
+
+  const handleAddRowAbove = () => {
+    if (selectedCell) {
+      const rowIndex = parseInt(selectedCell.match(/\d+/)?.[0] || '0');
+      spreadsheet.insertRow(rowIndex, user);
+    }
+    console.log(spreadsheet);
+  };
+
+  const handleAddRowBelow = () => {
+    if (selectedCell) {
+      const rowIndex = parseInt(selectedCell.match(/\d+/)?.[0] || '0');
+      console.log(rowIndex)
+      spreadsheet.insertRow(rowIndex + 1, user);
+    }
+  };
+
+  const handleDeleteRow = () => {
+    if (selectedCell) {
+      const rowIndex = parseInt(selectedCell.match(/\d+/)?.[0] || '0');
+      spreadsheet.deleteRow(rowIndex, user);
+    }
+  };
+
   const handleUnderline = () => {
     setIsUnderlined(!isUnderlined);
-    // TODO: Underline Text
   };
 
   const handleAlignLeft = () => {
     setIsAlignedLeft(!isAlignedLeft);
-    // TODO: Aligned text
   };
 
   return (
     <div className="w-full bg-[#169F50] py-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex items-center gap-8">
-          {/* First hub - 2 icons */}
+          {/* Clipboard operations */}
           <div className="bg-[#2DA961] rounded-full px-4 py-2 flex items-center gap-2 shadow-xl">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-10 w-10 rounded-full text-white ${isEditMode ? 'bg-[#169F50]' : 'hover:bg-[#169F50]'}`}
-              onClick={handleEditMode}
-            >
-              <Edit2 className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-10 w-10 rounded-full text-white ${isSearchMode ? 'bg-[#169F50]' : 'hover:bg-[#169F50]'}`}
-              onClick={handleSearch}
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-          </div>
-
-          {/* Second hub - 4 icons */}
-          <div className="bg-[#2DA961] rounded-full px-4 py-2 flex items-center gap-2 shadow-xl">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 rounded-full text-white hover:bg-[#169F50]"
-              onClick={handleEditMode}
-            >
-              <Pencil className="h-5 w-5" />
-            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -153,9 +163,84 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
             >
               <ClipboardPaste className="h-5 w-5" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-full text-white hover:bg-[#169F50]"
+            >
+              <Pencil className="h-5 w-5" />
+            </Button>
           </div>
 
-          {/* Third hub - 2 icons */}
+          {/* Column operations */}
+          <div className="bg-[#2DA961] rounded-full px-4 py-2 flex items-center gap-2 shadow-xl">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-full text-white hover:bg-[#169F50]"
+              onClick={handleAddColumnLeft}
+              disabled={!selectedCell}
+              title="Insert column to the left"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-full text-white hover:bg-[#169F50]"
+              onClick={handleAddColumnRight}
+              disabled={!selectedCell}
+              title="Insert column to the right"
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-full text-white hover:bg-[#169F50]"
+              onClick={handleDeleteColumn}
+              disabled={!selectedCell}
+              title="Delete column"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Row operations */}
+          <div className="bg-[#2DA961] rounded-full px-4 py-2 flex items-center gap-2 shadow-xl">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-full text-white hover:bg-[#169F50]"
+              onClick={handleAddRowAbove}
+              disabled={!selectedCell}
+              title="Insert row above"
+            >
+              <ArrowUp className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-full text-white hover:bg-[#169F50]"
+              onClick={handleAddRowBelow}
+              disabled={!selectedCell}
+              title="Insert row below"
+            >
+              <ArrowDown className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-full text-white hover:bg-[#169F50]"
+              onClick={handleDeleteRow}
+              disabled={!selectedCell}
+              title="Delete row"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Formatting operations */}
           <div className="bg-[#2DA961] rounded-full px-4 py-2 flex items-center gap-2 shadow-xl">
             <Button
               variant="ghost"

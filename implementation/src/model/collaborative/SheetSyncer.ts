@@ -111,7 +111,7 @@ export class SheetSyncer {
 
     private getCurrentState(): { [address: string]: string } {
         const state: { [address: string]: string } = {};
-        // Get all non-empty cells
+        console.log("gettingState");
         for (let row = 0; row < 1000; row++) {
             for (let col = 0; col < 26; col++) {
                 const colLabel = String.fromCharCode(65 + col);

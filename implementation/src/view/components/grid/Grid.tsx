@@ -1,52 +1,60 @@
-
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import CellComponent from './Cell';
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import { User } from 'model/components/User';
+import { match } from 'assert';
 
 interface GridProps {
-  // The user object for collaborative editing
   user: User;
-  // The spreadsheet object from our model
   spreadsheet: SpreadSheet;
-  // Currently selected cell address (e.g., 'A1')
   selectedCell: string | null;
-  // Callback when a cell's value is updated
   onCellUpdate: (address: string, newValue: string) => void;
-  // Callback when a cell is selected
   onCellSelect: (address: string) => void;
 }
 
-// Some constants for grid dimensions and buffer sizes, abstracted because might be
-// useful for parameterization if we want more optimization.
 const CELL_WIDTH = 128;
 const CELL_HEIGHT = 32;
 const BUFFER_ROWS = 0;
 const BUFFER_COLS = 0;
 
-/**
- * Grid Component for rendering a spreadsheet-like interface
- * Handles virtualization, scrolling, and cell rendering optimization
- */
 const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpdate, onCellSelect }) => {
-  // Refs for DOM elements and state management
-  const containerRef = useRef<HTMLDivElement>(null); // Main grid container
-  const columnHeaderRef = useRef<HTMLDivElement>(null); // Column headers container
-  const rowHeaderRef = useRef<HTMLDivElement>(null); // Row headers container
-  const isDraggingRef = useRef(false); // Tracks drag state
-  const lastMousePosRef = useRef({ x: 0, y: 0 }); // Last mouse position for drag calculation
-  const rafRef = useRef<number>(); // RequestAnimationFrame reference
-  const scrollPositionRef = useRef({ x: 0, y: 0 }); // Current scroll position
+  const containerRef = useRef<HTMLDivElement>(null);
+  const columnHeaderRef = useRef<HTMLDivElement>(null);
+  const rowHeaderRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const lastMousePosRef = useRef({ x: 0, y: 0 });
+  const rafRef = useRef<number>();
+  const scrollPositionRef = useRef({ x: 0, y: 0 });
   const lastVisibleRangeRef = useRef({
-    // Last rendered range of cells
     startRow: 0,
     endRow: 0,
     startCol: 0,
     endCol: 0,
   });
 
-  // State for visible range of cells and scroll position
+  // Track grid dimensions based on spreadsheet data
+  const [gridDimensions, setGridDimensions] = useState(() => {
+    const grid = spreadsheet.copyGrid();
+    const addresses = Array.from(grid.keys());
+    let maxRow = 0;
+    let maxCol = 0;
+
+    addresses.forEach(address => {
+      const match = address.match(/^([A-Za-z]+)(\d+)$/);
+      if (match) {
+        const col = match[1].length === 1 ? match[1].charCodeAt(0) - 65 : 26 + (match[1].charCodeAt(1) - 65);
+        const row = parseInt(match[2]) - 1;
+        maxRow = Math.max(maxRow, row);
+        maxCol = Math.max(maxCol, col);
+      }
+    });
+
+    return {
+      totalRows: maxRow + 2, // Add 1 for 0-based index and 1 for new row
+      totalCols: maxCol + 2  // Add 1 for 0-based index and 1 for new column
+    };
+  });
+
   const [visibleRange, setVisibleRange] = useState({
     startRow: 0,
     endRow: 40,
@@ -56,23 +64,41 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
 
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
 
-  /**
-   * Converts column index to letter
-   */
+  // Update grid dimensions when spreadsheet changes
+  useEffect(() => {
+    const grid = spreadsheet.copyGrid();
+    const addresses = Array.from(grid.keys());
+    let maxRow = 0;
+    let maxCol = 0;
+
+    addresses.forEach(address => {
+      const match = address.match(/^([A-Za-z]+)(\d+)$/);
+      if (match) {
+        const col = match[1].length === 1 ? match[1].charCodeAt(0) - 65 : 26 + (match[1].charCodeAt(1) - 65);
+        const row = parseInt(match[2]) - 1;
+        maxRow = Math.max(maxRow, row);
+        maxCol = Math.max(maxCol, col);
+      }
+    });
+    console.log("rerendered")
+    setGridDimensions({
+      totalRows: maxRow + 2,
+      totalCols: maxCol + 2
+    });
+  }, [spreadsheet]);
+
   const getColumnLabel = (index: number): string => {
-    return String.fromCharCode(65 + index);
+    if (index < 26) {
+      return String.fromCharCode(65 + index);
+    }
+    return String.fromCharCode(65 + Math.floor(index / 26) - 1) +
+           String.fromCharCode(65 + (index % 26));
   };
 
-  /**
-   * Generates cell address from row and column indices
-   */
   const getCellAddress = (row: number, col: number): string => {
     return `${getColumnLabel(col)}${row + 1}`;
   };
 
-  /**
-   * Gets initial cell value from our spreadsheet object
-   */
   const getCellInitialValue = (address: string): string => {
     try {
       return spreadsheet.getCell(address).getInput();
@@ -81,13 +107,8 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
     }
   };
 
-  /**
-   * Updates the visible range of cells based on scroll position
-   * Uses requestAnimationFrame for a little optimization for qol smoothing changes
-   */
   const updateVisibleRange = useCallback(() => {
     if (!containerRef.current) return;
-
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
     const scrollLeft = container.scrollLeft;
@@ -106,15 +127,13 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
       const visibleRows = Math.ceil(rect.height / CELL_HEIGHT);
       const visibleCols = Math.ceil(rect.width / CELL_WIDTH);
 
-      // Calculate new range with buffer zones
       const newRange = {
         startRow: Math.max(0, startRow - BUFFER_ROWS),
-        endRow: Math.min(1000, startRow + visibleRows + BUFFER_ROWS),
+        endRow: Math.min(gridDimensions.totalRows, startRow + visibleRows + BUFFER_ROWS),
         startCol: Math.max(0, startCol - BUFFER_COLS),
-        endCol: Math.min(26, startCol + visibleCols + BUFFER_COLS),
+        endCol: Math.min(gridDimensions.totalCols, startCol + visibleCols + BUFFER_COLS),
       };
 
-      // Only update if the range has changed significantly
       const shouldUpdate =
         Math.abs(newRange.startRow - lastVisibleRangeRef.current.startRow) > BUFFER_ROWS / 2 ||
         Math.abs(newRange.startCol - lastVisibleRangeRef.current.startCol) > BUFFER_COLS / 2;
@@ -126,25 +145,16 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
 
       setScrollPosition(scrollPositionRef.current);
     });
-  }, []);
+  }, [gridDimensions]);
 
-  /**
-   * Handles mouse down event to initiate dragging
-   */
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0 || !containerRef.current) return;
-
     isDraggingRef.current = true;
     lastMousePosRef.current = { x: e.clientX, y: e.clientY };
-
     document.body.style.cursor = 'grabbing';
     e.preventDefault();
   };
 
-  /**
-   * Handles mouse movement during drag
-   * Updates scroll position and header positions for smooth scrolling, not necessary but qol change
-   */
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!isDraggingRef.current || !containerRef.current) return;
@@ -157,7 +167,6 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
 
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
 
-      // Update header positions directly for better movement, qol change
       if (columnHeaderRef.current) {
         columnHeaderRef.current.style.transform = `translateX(-${containerRef.current.scrollLeft}px)`;
       }
@@ -165,7 +174,6 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
         rowHeaderRef.current.style.transform = `translateY(-${containerRef.current.scrollTop}px)`;
       }
 
-      // Throttle visible range updates during drag
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }
@@ -174,24 +182,17 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
     [updateVisibleRange]
   );
 
-  /**
-   * Handles mouse up event to end dragging
-   */
   const handleMouseUp = useCallback(() => {
     isDraggingRef.current = false;
     document.body.style.cursor = 'default';
   }, []);
 
-  /**
-   * Sets up event listeners and cleanup
-   */
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     let scrollTimeout: NodeJS.Timeout;
 
-    // Handle normal scrolling (non-drag)
     const handleScroll = () => {
       if (columnHeaderRef.current) {
         columnHeaderRef.current.style.transform = `translateX(-${container.scrollLeft}px)`;
@@ -227,19 +228,12 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
     };
   }, [handleMouseMove, handleMouseUp, updateVisibleRange]);
 
-  // Grid dimensions (These are copied from Google Sheets)
-  const totalRows = 1000;
-  const totalCols = 26;
-
-  // Return for our render
   return (
     <div className="relative w-full h-[95vh] border border-gray-300">
-      {/* Top-left corner cell showing selected cell address */}
       <div className="absolute top-0 left-0 w-16 h-8 bg-gray-100 border-r border-b z-30 flex items-center justify-center font-medium">
         {selectedCell || ''}
       </div>
 
-      {/* Column headers (A, B, C, etc.) */}
       <div className="absolute top-0 left-16 right-0 h-8 bg-gray-100 border-b overflow-hidden z-20">
         <div
           ref={columnHeaderRef}
@@ -249,7 +243,7 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
             willChange: 'transform',
           }}
         >
-          {Array.from({ length: totalCols }).map((_, index) => (
+          {Array.from({ length: gridDimensions.totalCols }).map((_, index) => (
             <div
               key={`header-${index}`}
               className="flex-shrink-0 w-32 h-8 border-r flex items-center justify-center font-medium"
@@ -260,7 +254,6 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
         </div>
       </div>
 
-      {/* Row headers (1, 2, 3, etc.) */}
       <div className="absolute top-8 left-0 w-16 bottom-0 bg-gray-100 border-r overflow-hidden z-20">
         <div
           ref={rowHeaderRef}
@@ -270,7 +263,7 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
             willChange: 'transform',
           }}
         >
-          {Array.from({ length: totalRows }).map((_, index) => (
+          {Array.from({ length: gridDimensions.totalRows }).map((_, index) => (
             <div
               key={`row-${index}`}
               className="h-8 w-16 border-b flex items-center justify-center font-medium"
@@ -281,7 +274,6 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
         </div>
       </div>
 
-      {/* Main grid container with our cells */}
       <div
         ref={containerRef}
         className="absolute top-8 left-16 right-0 bottom-0 overflow-auto"
@@ -291,12 +283,11 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
         <div
           className="relative"
           style={{
-            width: totalCols * CELL_WIDTH,
-            height: totalRows * CELL_HEIGHT,
+            width: gridDimensions.totalCols * CELL_WIDTH,
+            height: gridDimensions.totalRows * CELL_HEIGHT,
           }}
         >
           <div className="absolute inset-0">
-            {/* Render only visible rows */}
             {Array.from({ length: visibleRange.endRow - visibleRange.startRow }).map(
               (_, rowOffset) => {
                 const rowIndex = visibleRange.startRow + rowOffset;
@@ -310,7 +301,6 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
                       willChange: 'transform',
                     }}
                   >
-                    {/* Render only visible cells in each row */}
                     {Array.from({ length: visibleRange.endCol - visibleRange.startCol }).map(
                       (_, colOffset) => {
                         const colIndex = visibleRange.startCol + colOffset;

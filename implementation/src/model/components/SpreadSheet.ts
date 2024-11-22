@@ -45,6 +45,7 @@ export class SpreadSheet {
    * @param user the user
    */
   public insertRow(index: number, user: User): void {
+    console.log("here");
     this.updateReferences(index, 0, 1, user);
     const digits = Array.from(this.grid.keys());
     let keys: string[] = [];
@@ -175,8 +176,9 @@ export class SpreadSheet {
             return `REF(${column}${row + y})`;
           }
         } else {
-          if (column >= Utility.numberToColumnLetter(point)) {
-            return `REF(${Utility.numberToColumnLetter(point + x)}${row})`;
+          if (Utility.columnLetterToNumber(column) >= point) {
+            console.log(Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x));
+            return `REF(${Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x)}${row})`;
           }
         }
         return match;

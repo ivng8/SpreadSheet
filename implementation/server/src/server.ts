@@ -32,17 +32,17 @@ class CollaborationServer {
       ws.on('message', (message: string) => {
         const data = JSON.parse(message);
         const userId = data.userId;
-        
+
         // Check if user is already in a session
         const existingSessionId = this.clientSessions.get(userId);
-        
+
         switch (data.type) {
           case 'JOIN_SESSION':
             if (client) {
               console.log(`Client ${userId} already connected, ignoring JOIN_SESSION`);
               return;
             }
-            
+
             client = {
               ws,
               userId: userId,
@@ -136,7 +136,7 @@ class CollaborationServer {
     }
 
     this.sendInitialState(client);
-    
+
     this.broadcastToSession(client.sessionId, {
       type: 'USER_JOINED',
       userId: client.userId
@@ -147,7 +147,7 @@ class CollaborationServer {
     const session = this.sessions.get(client.sessionId);
     if (session) {
       session.clients.delete(client);
-      
+
       if (session.clients.size === 0) {
         // Only delete session data if there are no connected clients
         console.log(`Last client left session ${client.sessionId}, preserving session data`);
@@ -191,6 +191,7 @@ class CollaborationServer {
       session.clients.forEach(client => {
         if (client !== exclude && client.ws.readyState === WebSocket.OPEN) {
           client.ws.send(JSON.stringify(message));
+          console.log(JSON.stringify(message));
         }
       });
     }

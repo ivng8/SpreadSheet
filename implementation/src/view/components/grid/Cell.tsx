@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Cell } from 'model/components/Cell';
@@ -58,13 +58,12 @@ const CellView: React.FC<CellProps> = ({
     // Subscribe to both value and cell changes
     cell.subscribeToValue(handleValueChange);
     cell.subscribe(handleCellChange);
-
     // Cleanup subscriptions
     return () => {
       cell.unsubscribeFromValue(handleValueChange);
       cell.unsubscribe(handleCellChange);
     };
-  }, [cell]);
+  }, [cell.getValue()]);
 
   const handleCellUpdate = (newValue: string) => {
     if (newValue !== cell.getInput()) {
