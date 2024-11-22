@@ -9,7 +9,7 @@ import { BranchEntry } from 'model/version/BranchEntry';
 
 // Simple types for our observers
 type CellObserver = (cell: Cell) => void;
-type ValueChangeCallback = (expression: IExpression) => void;
+type ValueChangeCallback = (value: any) => void;
 
 /**
  * represents a cell in a spreadsheet
@@ -116,7 +116,7 @@ export class Cell {
    * Notify value change observers
    * @param expression The new expression
    */
-  private notifyValueObservers(expression: IExpression): void {
+  private notifyValueObservers(expression: any): void {
     this.valueChangeObservers.forEach(observer => observer(expression));
   }
 
@@ -207,5 +207,9 @@ export class Cell {
 
   public getVersionHistory(): BranchEntry[] {
     return this.versionHistory.getHistory();
+  }
+
+  public getExpression(): IExpression {
+    return this.expression;
   }
 }

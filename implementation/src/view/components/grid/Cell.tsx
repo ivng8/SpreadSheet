@@ -46,30 +46,33 @@ const CellView: React.FC<CellProps> = ({
 
     const handleCellChange = (updatedCell: Cell) => {
       setInputValue(updatedCell.getInput());
-      setDisplayedValue(updatedCell.getValue());
+      const value = updatedCell.getValue();
+      setDisplayedValue(value);
       setHasError(updatedCell.hasError());
     };
 
     // Initial value
     setInputValue(cell.getInput());
-    setDisplayedValue(cell.getValue());
+    const initialValue = cell.getValue();
+    setDisplayedValue(initialValue);
     setHasError(cell.hasError());
 
     // Subscribe to both value and cell changes
     cell.subscribeToValue(handleValueChange);
     cell.subscribe(handleCellChange);
+
     // Cleanup subscriptions
     return () => {
       cell.unsubscribeFromValue(handleValueChange);
       cell.unsubscribe(handleCellChange);
     };
-  }, [cell.getValue()]);
+  }, [cell]); // Only depend on cell instance
 
   const handleCellUpdate = (newValue: string) => {
     if (newValue !== cell.getInput()) {
       onUpdate(address, newValue);
       setInputValue(newValue);
-      cell.updateContents(newValue, user); // Update local cell
+      cell.updateContents(newValue, user);
     }
   };
 
@@ -97,6 +100,7 @@ const CellView: React.FC<CellProps> = ({
           handleCellUpdate(inputValue);
           e.preventDefault();
         }
+        console.log(spread)
         break;
       case 'Escape':
         if (isEditing) {
@@ -189,6 +193,14 @@ const CellView: React.FC<CellProps> = ({
   );
 };
 
-export const CellComponent = React.memo(CellView);
+export const CellComponent = React.memo(CellView, (prevProps, nextProps) => {
+  return (
+    prevProps.address === nextProps.address &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.initialInput === nextProps.initialInput &&
+    prevProps.user === nextProps.user &&
+    prevProps.spreadsheet === nextProps.spreadsheet
+  );
+});
 
 export default CellComponent;

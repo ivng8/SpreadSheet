@@ -28,6 +28,7 @@ export class SheetSyncer {
     private reconnectAttempts: number = 0;
     private maxReconnectAttempts: number = 5;
     private reconnectTimeout: number = 1000;
+    private connectedUsers: Map<string, User> = new Map();
 
     constructor(spreadsheet: SpreadSheet, userId: string) {
         this.spreadsheet = spreadsheet;
@@ -36,6 +37,7 @@ export class SheetSyncer {
         this.cellSubscribers = new Map();
         this.operationSubscribers = new Set();
         this.sessionSubscribers = new Set();
+        this.connectedUsers.set(userId, this.user);
     }
 
     public async connect(url: string, sessionId?: string): Promise<string> {
@@ -67,6 +69,7 @@ export class SheetSyncer {
                             break;
 
                         case 'SYNC_STATE':
+                            console.log(data.state)
                             this.applyInitialState(data.state);
                             break;
 
@@ -77,9 +80,25 @@ export class SheetSyncer {
                             break;
 
                         case 'USER_JOINED':
-                        case 'USER_LEFT':
+                            const newUser = new User(data.userId, data.userId + "@example.com");
+                            this.connectedUsers.set(data.userId, newUser);
                             this.notifySessionSubscribers(data);
                             break;
+
+                        case 'USER_LEFT':
+                            this.connectedUsers.delete(data.userId);
+                            this.notifySessionSubscribers(data);
+                            break;
+                    }
+                };
+
+                this.wsConnection.onclose = () => {
+                    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                        setTimeout(() => {
+                            this.reconnectAttempts++;
+                            this.reconnectTimeout *= 2;
+                            this.connect(url, this.sessionId || undefined);
+                        }, this.reconnectTimeout);
                     }
                 };
 
@@ -109,17 +128,21 @@ export class SheetSyncer {
         }
     }
 
-    private getCurrentState(): { [address: string]: string } {
-        const state: { [address: string]: string } = {};
-        // Get all non-empty cells
+    private getCurrentState(): Array<{ address: string; value: string; userId: string }> {
+        const state: Array<{ address: string; value: string; userId: string }> = [];
         for (let row = 0; row < 1000; row++) {
             for (let col = 0; col < 26; col++) {
                 const colLabel = String.fromCharCode(65 + col);
                 const address = `${colLabel}${row + 1}`;
                 try {
-                    const value = this.spreadsheet.getCell(address).getInput();
+                    const cell = this.spreadsheet.getCell(address);
+                    const value = cell.getInput();
                     if (value) {
-                        state[address] = value;
+                        state.push({
+                            address,
+                            value,
+                            userId: this.user.getName()
+                        });
                     }
                 } catch (error) {
                     console.error(`Error getting cell ${address}:`, error);
@@ -129,11 +152,18 @@ export class SheetSyncer {
         return state;
     }
 
-    private applyInitialState(state: { [address: string]: string }) {
-        Object.entries(state).forEach(([address, value]) => {
+    private applyInitialState(state: Array<{ address: string; value: string; userId: string }>) {
+        state.forEach(({ address, value, userId }) => {
             try {
                 const cell = this.spreadsheet.getCell(address);
-                cell.updateContents(value, this.user);
+                let operationUser = this.connectedUsers.get(userId);
+                if (!operationUser) {
+                    operationUser = new User(userId, userId + "@example.com");
+                    this.connectedUsers.set(userId, operationUser);
+                    console.log("here");
+                }
+                console.log("here");
+                cell.updateContents(value, operationUser);
             } catch (error) {
                 console.error(`Error applying initial state to cell ${address}:`, error);
             }
@@ -168,15 +198,14 @@ export class SheetSyncer {
             this.wsConnection.send(JSON.stringify({
                 type: 'OPERATION',
                 operation,
-                sessionId: this.sessionId
+                sessionId: this.sessionId,
+                userId: this.user.getName()
             }));
         }
     }
 
     public handleRemoteOperation(operation: Operation): void {
-        // Simply apply the latest operation
         this.applyOperation(operation);
-        // Remove any pending operations for this cell
         this.pendingOperations = this.pendingOperations.filter(
             op => op.address !== operation.address
         );
@@ -184,7 +213,14 @@ export class SheetSyncer {
 
     private applyOperation(operation: Operation): void {
         const cell = this.spreadsheet.getCell(operation.address);
-        cell.updateContents(operation.value, this.user);
+        let operationUser = this.connectedUsers.get(operation.userId);
+
+        if (!operationUser) {
+            operationUser = new User(operation.userId, operation.userId + "@example.com");
+            this.connectedUsers.set(operation.userId, operationUser);
+        }
+
+        cell.updateContents(operation.value, operationUser);
 
         const subscribers = this.cellSubscribers.get(operation.address);
         if (subscribers) {
@@ -253,5 +289,9 @@ export class SheetSyncer {
 
     public getPendingOperations(): Operation[] {
         return [...this.pendingOperations];
+    }
+
+    public getConnectedUsers(): Map<string, User> {
+        return new Map(this.connectedUsers);
     }
 }

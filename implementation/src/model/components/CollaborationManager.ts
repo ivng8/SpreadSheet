@@ -40,7 +40,7 @@ export class CollaborationManager {
     console.log('Found conflicts:', conflicts.length);
     if (conflicts.length > 0) {
       resolver.addConflicts(conflicts);
-      const resolutions = await resolver.resolve(user);
+      const resolutions = await resolver.resolve();
       this.applyResolutions(resolutions, grid);
     }
 

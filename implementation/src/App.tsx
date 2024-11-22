@@ -156,6 +156,7 @@ const App: React.FC = () => {
         }}
         user={modelRef.current?.getUser()}
         onSpreadsheetUpdate={handleSpreadsheetUpdate}
+        syncer={modelRef.current}
       />
       <div className="flex-1 overflow-hidden">
         <Grid

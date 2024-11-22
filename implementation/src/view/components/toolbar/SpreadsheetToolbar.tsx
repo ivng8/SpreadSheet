@@ -18,6 +18,7 @@ import { User } from 'model/components/User';
 import { Utility } from 'model/Utility';
 import VersionHistoryHub from './VersionHistoryHub';
 import ImportHub from './ImportHub';
+import { SheetSyncer } from 'model/collaborative/SheetSyncer';
 
 interface SpreadsheetToolbarProps {
   spreadsheet: SpreadSheet;
@@ -28,6 +29,7 @@ interface SpreadsheetToolbarProps {
   onShareClick?: () => void;
   user: User;
   onSpreadsheetUpdate: () => void;
+  syncer: SheetSyncer;
 }
 
 const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
@@ -79,8 +81,8 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
 
   const handleAddColumnLeft = () => {
     if (selectedCell) {
-      const letter = selectedCell.match(/[A-Za-z]+/) || [];
-      const colIndex = Utility.columnLetterToNumber(letter[1]);
+      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter);
       spreadsheet.insertColumn(colIndex, user);
       onSpreadsheetUpdate();
     }
@@ -88,8 +90,8 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
 
   const handleAddColumnRight = () => {
     if (selectedCell) {
-      const letter = selectedCell.match(/[A-Za-z]+/) || [];
-      const colIndex = Utility.columnLetterToNumber(letter[1]);
+      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter);
       spreadsheet.insertColumn(colIndex + 1, user);
       onSpreadsheetUpdate();
     }
@@ -97,8 +99,8 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
 
   const handleDeleteColumn = () => {
     if (selectedCell) {
-      const letter = selectedCell.match(/[A-Za-z]+/) || [];
-      const colIndex = Utility.columnLetterToNumber(letter[1]);
+      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter);
       spreadsheet.deleteColumn(colIndex, user);
       onSpreadsheetUpdate();
     }

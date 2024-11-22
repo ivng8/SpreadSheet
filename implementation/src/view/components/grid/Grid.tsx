@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import CellComponent from './Cell';
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import { User } from 'model/components/User';
-import { match } from 'assert';
 
 interface GridProps {
   user: User;
@@ -14,8 +13,10 @@ interface GridProps {
 
 const CELL_WIDTH = 128;
 const CELL_HEIGHT = 32;
-const BUFFER_ROWS = 0;
-const BUFFER_COLS = 0;
+const BUFFER_ROWS = 5;
+const BUFFER_COLS = 5;
+const MIN_ROWS = 100;
+const MIN_COLS = 26;
 
 const Grid: React.FC<GridProps> = ({
   user,
@@ -38,7 +39,12 @@ const Grid: React.FC<GridProps> = ({
     endCol: 0,
   });
 
-  // Track grid dimensions based on spreadsheet data
+  // Track existing cells
+  const [existingCells, setExistingCells] = useState(() => {
+    const grid = spreadsheet.copyGrid();
+    return new Set(Array.from(grid.keys()));
+  });
+
   const [gridDimensions, setGridDimensions] = useState(() => {
     const grid = spreadsheet.copyGrid();
     const addresses = Array.from(grid.keys());
@@ -57,8 +63,8 @@ const Grid: React.FC<GridProps> = ({
     });
 
     return {
-      totalRows: maxRow + 2, // Add 1 for 0-based index and 1 for new row
-      totalCols: maxCol + 2, // Add 1 for 0-based index and 1 for new column
+      totalRows: Math.max(maxRow + 2, MIN_ROWS),
+      totalCols: Math.max(maxCol + 2, MIN_COLS),
     };
   });
 
@@ -71,10 +77,12 @@ const Grid: React.FC<GridProps> = ({
 
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
 
-  // Update grid dimensions when spreadsheet changes
+  // Update grid dimensions and existing cells when spreadsheet changes
   useEffect(() => {
     const grid = spreadsheet.copyGrid();
     const addresses = Array.from(grid.keys());
+    setExistingCells(new Set(addresses));
+
     let maxRow = 0;
     let maxCol = 0;
 
@@ -90,31 +98,40 @@ const Grid: React.FC<GridProps> = ({
     });
 
     setGridDimensions({
-      totalRows: maxRow + 2,
-      totalCols: maxCol + 2,
+      totalRows: Math.max(maxRow + 2, MIN_ROWS),
+      totalCols: Math.max(maxCol + 2, MIN_COLS),
     });
   }, [spreadsheet]);
 
-  const getColumnLabel = (index: number): string => {
+  const getColumnLabel = useCallback((index: number): string => {
     if (index < 26) {
       return String.fromCharCode(65 + index);
     }
     return (
       String.fromCharCode(65 + Math.floor(index / 26) - 1) + String.fromCharCode(65 + (index % 26))
     );
-  };
+  }, []);
 
-  const getCellAddress = (row: number, col: number): string => {
-    return `${getColumnLabel(col)}${row + 1}`;
-  };
+  const getCellAddress = useCallback(
+    (row: number, col: number): string => {
+      return `${getColumnLabel(col)}${row + 1}`;
+    },
+    [getColumnLabel]
+  );
 
-  const getCellInitialValue = (address: string): string => {
-    try {
-      return spreadsheet.getCell(address).getInput();
-    } catch {
+  const getCellInitialValue = useCallback(
+    (address: string): string => {
+      if (existingCells.has(address)) {
+        try {
+          return spreadsheet.getCell(address).getInput();
+        } catch {
+          return '';
+        }
+      }
       return '';
-    }
-  };
+    },
+    [spreadsheet, existingCells]
+  );
 
   const updateVisibleRange = useCallback(() => {
     if (!containerRef.current) return;
@@ -239,10 +256,12 @@ const Grid: React.FC<GridProps> = ({
 
   return (
     <div className="relative w-full h-[95vh] border border-gray-300">
+      {/* Selected Cell Display */}
       <div className="absolute top-0 left-0 w-16 h-8 bg-gray-100 border-r border-b z-30 flex items-center justify-center font-medium">
         {selectedCell || ''}
       </div>
 
+      {/* Column Headers */}
       <div className="absolute top-0 left-16 right-0 h-8 bg-gray-100 border-b overflow-hidden z-20">
         <div
           ref={columnHeaderRef}
@@ -263,6 +282,7 @@ const Grid: React.FC<GridProps> = ({
         </div>
       </div>
 
+      {/* Row Headers */}
       <div className="absolute top-8 left-0 w-16 bottom-0 bg-gray-100 border-r overflow-hidden z-20">
         <div
           ref={rowHeaderRef}
@@ -283,6 +303,7 @@ const Grid: React.FC<GridProps> = ({
         </div>
       </div>
 
+      {/* Grid Content */}
       <div
         ref={containerRef}
         className="absolute top-8 left-16 right-0 bottom-0 overflow-auto"
@@ -314,6 +335,8 @@ const Grid: React.FC<GridProps> = ({
                       (_, colOffset) => {
                         const colIndex = visibleRange.startCol + colOffset;
                         const address = getCellAddress(rowIndex, colIndex);
+                        const shouldRenderCell = existingCells.has(address);
+
                         return (
                           <div
                             key={`cell-${address}`}
@@ -323,17 +346,25 @@ const Grid: React.FC<GridProps> = ({
                               width: CELL_WIDTH,
                               height: CELL_HEIGHT,
                               willChange: 'transform',
+                              backgroundColor: shouldRenderCell ? undefined : '#f9fafb',
                             }}
                           >
-                            <CellComponent
-                              user={user}
-                              address={address}
-                              initialInput={getCellInitialValue(address)}
-                              spreadsheet={spreadsheet}
-                              onUpdate={onCellUpdate}
-                              isSelected={selectedCell === address}
-                              onSelect={onCellSelect}
-                            />
+                            {shouldRenderCell ? (
+                              <CellComponent
+                                user={user}
+                                address={address}
+                                initialInput={getCellInitialValue(address)}
+                                spreadsheet={spreadsheet}
+                                onUpdate={onCellUpdate}
+                                isSelected={selectedCell === address}
+                                onSelect={onCellSelect}
+                              />
+                            ) : (
+                              <div
+                                className="w-full h-full"
+                                onClick={() => onCellSelect(address)}
+                              />
+                            )}
                           </div>
                         );
                       }

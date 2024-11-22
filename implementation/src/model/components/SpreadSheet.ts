@@ -105,7 +105,7 @@ export class SpreadSheet {
         ans.set(
           Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) + 1) + key[2],
           this.grid.get(digits[i])!
-        );
+        )
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -185,6 +185,7 @@ export class SpreadSheet {
         }
         return match;
       });
+
       if (curr !== this.grid.get(digits[i])!.getInput()) {
         this.grid.get(digits[i])!.updateContents(curr, user);
       }

@@ -4,14 +4,12 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MergeConflict } from 'model/conflicts/MergeConflict';
 import { Card } from '@/components/ui/card';
-import { User } from 'model/components/User';
 
 interface MergeConflictDialogProps {
   isOpen: boolean;
   onClose: () => void;
   conflicts: MergeConflict[];
   onResolve: (conflict: MergeConflict, useOriginal: boolean) => void;
-  user: User;
 }
 
 const MergeConflictDialog: React.FC<MergeConflictDialogProps> = ({
@@ -19,7 +17,6 @@ const MergeConflictDialog: React.FC<MergeConflictDialogProps> = ({
   onClose,
   conflicts,
   onResolve,
-  user,
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -41,7 +38,7 @@ const MergeConflictDialog: React.FC<MergeConflictDialogProps> = ({
                     <div>
                       <div className="text-sm font-medium text-gray-500 mb-2">Current Value</div>
                       <div className="p-3 bg-gray-50 rounded-md mb-2 min-h-[40px]">
-                        {conflict.use(true, user).getInput() || <em>Empty</em>}
+                        {conflict.use(true).getInput() || <em>Empty</em>}
                       </div>
                       <Button
                         variant="outline"
@@ -54,7 +51,7 @@ const MergeConflictDialog: React.FC<MergeConflictDialogProps> = ({
                     <div>
                       <div className="text-sm font-medium text-gray-500 mb-2">Imported Value</div>
                       <div className="p-3 bg-gray-50 rounded-md mb-2 min-h-[40px]">
-                        {conflict.use(false, user).getInput() || <em>Empty</em>}
+                        {conflict.use(false).getInput() || <em>Empty</em>}
                       </div>
                       <Button
                         variant="outline"

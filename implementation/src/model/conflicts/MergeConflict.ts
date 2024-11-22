@@ -1,5 +1,4 @@
 import { Cell } from 'model/components/Cell';
-import { User } from 'model/components/User';
 
 /**
  * characterizes a conflict between two cells
@@ -35,10 +34,11 @@ export class MergeConflict {
    * @param value the boolean
    * @returns the cell instance wanted by the user
    */
-  public use(value: boolean, user: User): Cell {
-    if (!value) {
-      this.sheet1.updateContents(this.sheet2.getInput(), user);
+  public use(value: boolean): Cell {
+    if (value) {
+      return this.sheet1;
+    } else {
+      return this.sheet2;
     }
-    return this.sheet1;
   }
 }
