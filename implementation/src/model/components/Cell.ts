@@ -5,6 +5,7 @@ import { SpreadSheet } from './SpreadSheet';
 import { IError } from '../interfaces/IError';
 import { User } from './User';
 import { AError } from 'model/errors/AError';
+import { BranchEntry } from 'model/version/BranchEntry';
 
 // Simple types for our observers
 type CellObserver = (cell: Cell) => void;
@@ -202,5 +203,9 @@ export class Cell {
 
   public hasError(): boolean {
     return this.expression instanceof AError;
+  }
+
+  public getVersionHistory(): BranchEntry[] {
+    return this.versionHistory.getHistory();
   }
 }

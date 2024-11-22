@@ -18,6 +18,7 @@ import {
 import { SpreadSheet } from 'model/components/SpreadSheet';
 import { User } from 'model/components/User';
 import { Utility } from 'model/Utility';
+import VersionHistoryHub from './VersionHistoryHub';
 
 interface SpreadsheetToolbarProps {
   spreadsheet: SpreadSheet;
@@ -296,6 +297,13 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
           >
             <Users className="h-5 w-5" />
           </Button>
+          <VersionHistoryHub
+            spreadsheet={spreadsheet}
+            selectedCell={selectedCell}
+            onCellUpdate={onCellUpdate}
+            user={user}
+            onSpreadsheetUpdate={onSpreadsheetUpdate}
+          />
         </div>
       </div>
     </div>

@@ -45,7 +45,6 @@ export class SpreadSheet {
    * @param user the user
    */
   public insertRow(index: number, user: User): void {
-    console.log("here");
     this.updateReferences(index, 0, 1, user);
     const digits = Array.from(this.grid.keys());
     let keys: string[] = [];
@@ -168,24 +167,21 @@ export class SpreadSheet {
     const refRegex = /REF\(([A-Za-z]+\d+)\)/g;
     for (let i = 0; i < digits.length; i += 1) {
       let curr: string = this.grid.get(digits[i])!.getInput();
-      curr.replace(refRegex, (match, reference) => {
+      curr = curr.replace(refRegex, (match, reference) => {
         const column = reference.match(/[A-Za-z]+/)[0];
         const row = parseInt(reference.match(/\d+/)[0]);
         if (x === 0) {
           if (row >= point) {
-            return `=REF(${column}${row + y})`;
+            return `REF(${column}${row + y})`;
           }
         } else {
           if (Utility.columnLetterToNumber(column) >= point) {
-            console.log(`=REF(${Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x)}${row})`);
-            return `=REF(${Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x)}${row})`;
+            return `REF(${Utility.numberToColumnLetter(Utility.columnLetterToNumber(column) + x)}${row})`;
           }
         }
         return match;
       });
-      console.log(curr);
-      if (!(curr === this.grid.get(digits[i])!.getInput())) {
-        console.log('here');
+      if (curr !== this.grid.get(digits[i])!.getInput()) {
         this.grid.get(digits[i])!.updateContents(curr, user);
       }
     }
