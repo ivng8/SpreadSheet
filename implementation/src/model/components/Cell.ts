@@ -4,10 +4,11 @@ import { Director } from '../Director';
 import { SpreadSheet } from './SpreadSheet';
 import { IError } from '../interfaces/IError';
 import { User } from './User';
+import { AError } from 'model/errors/AError';
 
 // Simple types for our observers
 type CellObserver = (cell: Cell) => void;
-type ValueChangeCallback = (newValue: any) => void;
+type ValueChangeCallback = (expression: IExpression) => void;
 
 /**
  * represents a cell in a spreadsheet
@@ -121,10 +122,10 @@ export class Cell {
 
   /**
    * Notify value change observers
-   * @param newValue The new value
+   * @param expression The new expression
    */
-  private notifyValueObservers(newValue: any): void {
-    this.valueChangeObservers.forEach(observer => observer(newValue));
+  private notifyValueObservers(expression: IExpression): void {
+    this.valueChangeObservers.forEach(observer => observer(expression));
   }
 
   /**
@@ -132,9 +133,9 @@ export class Cell {
    */
   private updateDependents(): void {
     this.dependents.forEach(cell => {
-      cell.getValue(); // Recalculate value
+      cell.getValue();
       cell.notifyObservers();
-      cell.notifyValueObservers(cell.getValue());
+      cell.notifyValueObservers(cell.expression);
       cell.updateDependents();
     });
   }
@@ -154,7 +155,7 @@ export class Cell {
    */
   public updateContents(newText: string, user: User): void {
     const oldValue = this.getValue();
-    this.clearDependencies(); // Clear old dependencies
+    this.clearDependencies();
 
     this.input = newText;
     this.expression = new Director().makeExpression(this.input, this.sheet, this);
@@ -163,7 +164,7 @@ export class Cell {
     // If the value has changed, notify observers
     const newValue = this.getValue();
     if (oldValue !== newValue) {
-      this.notifyValueObservers(newValue);
+      this.notifyValueObservers(this.expression);
     }
 
     // Notify general observers
@@ -181,7 +182,7 @@ export class Cell {
   public catchErrors(error: IError): void {
     this.expression = error;
     this.notifyObservers();
-    this.notifyValueObservers(null); // or some error value
+    this.notifyValueObservers(this.expression);
   }
 
   /**
@@ -199,5 +200,9 @@ export class Cell {
    */
   public getDependencies(): Set<Cell> {
     return new Set(this.dependencies);
+  }
+
+  public hasError(): boolean {
+    return this.expression instanceof AError;
   }
 }

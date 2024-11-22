@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Cell } from 'model/components/Cell';
 import { SpreadSheet } from 'model/components/SpreadSheet';
-import '../../../index.css'
+import '../../../index.css';
 import { User } from 'model/components/User';
 
 interface CellProps {
@@ -24,11 +25,12 @@ const CellView: React.FC<CellProps> = ({
   onUpdate,
   isSelected,
   onSelect,
-  onAddressChange
+  onAddressChange,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(initialInput);
   const [displayedValue, setDisplayedValue] = useState<string | number>('');
+  const [hasError, setHasError] = useState(false);
 
   // Create memoized cell instance
   const cell = useMemo(() => {
@@ -39,16 +41,19 @@ const CellView: React.FC<CellProps> = ({
   useEffect(() => {
     const handleValueChange = (newValue: any) => {
       setDisplayedValue(newValue);
+      setHasError(cell.hasError());
     };
 
     const handleCellChange = (updatedCell: Cell) => {
       setInputValue(updatedCell.getInput());
       setDisplayedValue(updatedCell.getValue());
+      setHasError(updatedCell.hasError());
     };
 
     // Initial value
     setInputValue(cell.getInput());
     setDisplayedValue(cell.getValue());
+    setHasError(cell.hasError());
 
     // Subscribe to both value and cell changes
     cell.subscribeToValue(handleValueChange);
@@ -113,15 +118,6 @@ const CellView: React.FC<CellProps> = ({
     setInputValue(e.target.value);
   };
 
-  const getDisplayValue = useCallback(() => {
-    try {
-      return displayedValue?.toString() || '';
-    } catch (error) {
-      console.error(error);
-      return '#ERROR';
-    }
-  }, [displayedValue]);
-
   if (isEditing) {
     return (
       <input
@@ -137,66 +133,63 @@ const CellView: React.FC<CellProps> = ({
     );
   }
 
+  if (hasError) {
+    return (
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={isSelected ? 'secondary' : 'ghost'}
+              className={`w-full h-full p-0 m-0 font-normal hover:bg-red-50 rounded-none border border-red-200 bg-red-50 ${
+                isSelected ? 'border-red-500' : ''
+              }`}
+              onClick={handleSelect}
+              onDoubleClick={startEditing}
+              onKeyDown={handleKeyDown}
+              aria-label={`Cell ${address}, error in formula`}
+              aria-selected={isSelected}
+              role="gridcell"
+              tabIndex={isSelected ? 0 : -1}
+            >
+              <div className="w-full px-2 py-1 text-left flex items-center justify-between">
+                <span className="text-gray-500 truncate">{inputValue}</span>
+                <span className="text-red-500 font-medium ml-1">ERROR</span>
+              </div>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            align="center"
+            className="bg-red-50 border border-red-200 text-red-600 p-2"
+          >
+            {cell.getValue()}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
   return (
     <Button
-      variant={isSelected ? "secondary" : "ghost"}
+      variant={isSelected ? 'secondary' : 'ghost'}
       className={`w-full h-full p-0 m-0 font-normal hover:bg-blue-50 rounded-none border border-gray-200 ${
         isSelected ? 'bg-blue-50 border-blue-500' : ''
       }`}
       onClick={handleSelect}
       onDoubleClick={startEditing}
       onKeyDown={handleKeyDown}
-      aria-label={`Cell ${address}, value: ${getDisplayValue()}`}
+      aria-label={`Cell ${address}, value: ${displayedValue}`}
       aria-selected={isSelected}
       role="gridcell"
       tabIndex={isSelected ? 0 : -1}
     >
       <div className="w-full px-2 py-1 text-left">
-        <span className="block truncate">
-          {getDisplayValue()}
-        </span>
+        <span className="block truncate">{displayedValue?.toString() || ''}</span>
       </div>
     </Button>
   );
 };
 
-class CellErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error) {
-    console.error('Cell Error:', error);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Button
-          variant="ghost"
-          className="w-full h-full p-0 m-0 rounded-none border border-gray-200"
-          aria-label="Error in cell"
-          role="gridcell"
-        >
-          <div className="w-full px-2 py-1 text-left text-red-500 hover:text-red-600 hover:bg-red-50">
-            #ERROR
-          </div>
-        </Button>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-export const CellComponent = React.memo((props: CellProps) => (
-  <CellErrorBoundary>
-    <CellView {...props} />
-  </CellErrorBoundary>
-));
+export const CellComponent = React.memo(CellView);
 
 export default CellComponent;

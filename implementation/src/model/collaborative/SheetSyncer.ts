@@ -1,9 +1,6 @@
-// src/model/collaborative/SheetSyncer.ts
 import { SpreadSheet } from '../components/SpreadSheet';
 import { Cell } from '../components/Cell';
 import { User } from '../components/User';
-import { MergeConflictResolver } from '../conflicts/MergeConflictResolver';
-import { MergeConflict } from '../conflicts/MergeConflict';
 
 export type Operation = {
     type: 'UPDATE_CELL' | 'DELETE_CELL';
@@ -27,7 +24,6 @@ export class SheetSyncer {
     private cellSubscribers: Map<string, Set<(value: string) => void>>;
     private operationSubscribers: Set<(operation: Operation) => void>;
     private sessionSubscribers: Set<(event: SessionEvent) => void>;
-    private conflictResolver: MergeConflictResolver;
     private sessionId: string | null = null;
     private reconnectAttempts: number = 0;
     private maxReconnectAttempts: number = 5;
@@ -40,7 +36,6 @@ export class SheetSyncer {
         this.cellSubscribers = new Map();
         this.operationSubscribers = new Set();
         this.sessionSubscribers = new Set();
-        this.conflictResolver = new MergeConflictResolver();
     }
 
     public async connect(url: string, sessionId?: string): Promise<string> {
@@ -179,31 +174,12 @@ export class SheetSyncer {
     }
 
     public handleRemoteOperation(operation: Operation): void {
-        const conflictingOp = this.pendingOperations.find(
-            pending => pending.address === operation.address
+        // Simply apply the latest operation
+        this.applyOperation(operation);
+        // Remove any pending operations for this cell
+        this.pendingOperations = this.pendingOperations.filter(
+            op => op.address !== operation.address
         );
-
-        if (conflictingOp) {
-            if (operation.timestamp > conflictingOp.timestamp) {
-                const conflict = new MergeConflict(
-                    operation.address,
-                    this.spreadsheet.getCell(operation.address),
-                    new Cell(operation.value, this.spreadsheet)
-                );
-
-                this.conflictResolver.addConflicts([conflict]);
-                this.conflictResolver.resolve().then(resolutions => {
-                    resolutions.forEach((resolvedCell, address) => {
-                        this.spreadsheet.getCell(address).updateContents(
-                            resolvedCell.getInput(),
-                            this.user
-                        );
-                    });
-                });
-            }
-        } else {
-            this.applyOperation(operation);
-        }
     }
 
     private applyOperation(operation: Operation): void {

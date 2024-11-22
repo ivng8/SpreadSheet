@@ -5,7 +5,7 @@ import { AError } from '../errors/AError';
  */
 export class InvalidExpression extends AError {
 
-  public display(): string {
+  public evaluate(): string {
     return 'Invalid Expression';
   }
 }
