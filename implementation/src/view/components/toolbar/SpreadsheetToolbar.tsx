@@ -9,8 +9,6 @@ import {
   ArrowLeft,
   ArrowUp,
   ArrowDown,
-  Underline,
-  AlignLeft,
   Users,
   Share2,
   Trash2,
@@ -43,8 +41,6 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
   onSpreadsheetUpdate,
 }) => {
   const [clipboardContent, setClipboardContent] = useState<string>('');
-  const [isUnderlined, setIsUnderlined] = useState(false);
-  const [isAlignedLeft, setIsAlignedLeft] = useState(false);
 
   const handleCut = () => {
     if (selectedCell) {
@@ -83,8 +79,8 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
 
   const handleAddColumnLeft = () => {
     if (selectedCell) {
-      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
-      const colIndex = Utility.columnLetterToNumber(letter);
+      const letter = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter[1]);
       spreadsheet.insertColumn(colIndex, user);
       onSpreadsheetUpdate();
     }
@@ -92,8 +88,8 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
 
   const handleAddColumnRight = () => {
     if (selectedCell) {
-      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
-      const colIndex = Utility.columnLetterToNumber(letter);
+      const letter = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter[1]);
       spreadsheet.insertColumn(colIndex + 1, user);
       onSpreadsheetUpdate();
     }
@@ -101,8 +97,8 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
 
   const handleDeleteColumn = () => {
     if (selectedCell) {
-      const [letter] = selectedCell.match(/[A-Za-z]+/) || [];
-      const colIndex = Utility.columnLetterToNumber(letter);
+      const letter = selectedCell.match(/[A-Za-z]+/) || [];
+      const colIndex = Utility.columnLetterToNumber(letter[1]);
       spreadsheet.deleteColumn(colIndex, user);
       onSpreadsheetUpdate();
     }
@@ -130,16 +126,6 @@ const SpreadsheetToolbar: React.FC<SpreadsheetToolbarProps> = ({
       spreadsheet.deleteRow(rowIndex, user);
       onSpreadsheetUpdate();
     }
-  };
-
-  const handleUnderline = () => {
-    setIsUnderlined(!isUnderlined);
-    onSpreadsheetUpdate();
-  };
-
-  const handleAlignLeft = () => {
-    setIsAlignedLeft(!isAlignedLeft);
-    onSpreadsheetUpdate();
   };
 
   return (
