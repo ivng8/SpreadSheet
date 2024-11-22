@@ -207,6 +207,10 @@ export class SpreadSheet {
     this.recalculate();
   }
 
+  /**
+   * writes the data in the spreadsheet into a Excel file
+   * @param outputPath the path of the file the user wants to write into
+   */
   public export(outputPath: string): void {
     let outputs: Map<string, string> = new Map<string, string>;
     const toString = (value: string | number | null): string =>

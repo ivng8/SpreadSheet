@@ -79,15 +79,6 @@ export class Cell {
   }
 
   /**
-   * Remove a dependency
-   * @param cell The cell to remove from dependencies
-   */
-  public removeDependency(cell: Cell): void {
-    this.dependencies.delete(cell);
-    cell.removeDependent(this);
-  }
-
-  /**
    * Add a cell that depends on this cell
    * @param cell The cell that depends on this cell
    */
