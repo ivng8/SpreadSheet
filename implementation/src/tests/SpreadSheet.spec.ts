@@ -35,23 +35,27 @@ describe('SpreadSheet', () => {
         const grid = new Map<string, Cell>();
         grid.set('A1', new Cell('=1', spreadsheet));
         grid.set('A2', new Cell('=2', spreadsheet));
+        grid.set('A3', new Cell('=5', spreadsheet));
         grid.set('B1', new Cell('=3', spreadsheet));
         grid.set('B2', new Cell('=4', spreadsheet));
+        grid.set('B3', new Cell('=6', spreadsheet));
         spreadsheet = new SpreadSheet(grid);
       });
 
       it('should insert row', () => {
         spreadsheet.insertRow(1, user);
-        
-        expect(spreadsheet.getCell('A1').getValue()).toBe(1);
-        expect(spreadsheet.getCell('A2').getValue()).toBeNull();
+        expect(spreadsheet.getCell('A2').getValue()).toBe(1);
         expect(spreadsheet.getCell('A3').getValue()).toBe(2);
+        expect(spreadsheet.getCell('A4').getValue()).toBe(5);
+        expect(spreadsheet.getCell('B2').getValue()).toBe(3);
+        expect(spreadsheet.getCell('B3').getValue()).toBe(4);
+        expect(spreadsheet.getCell('B4').getValue()).toBe(6);
       });
 
       it('should delete row', () => {
         spreadsheet.deleteRow(1, user);
-        expect(spreadsheet.getCell('A1').getValue()).toBe(1);
-        expect(spreadsheet.getCell('A2').getValue()).toBeNull();
+        expect(spreadsheet.getCell('A1').getValue()).toBe(2);
+        expect(spreadsheet.getCell('A2').getValue()).toBe(5);
       });
     });
 
@@ -62,20 +66,23 @@ describe('SpreadSheet', () => {
         grid.set('B1', new Cell('=2', spreadsheet));
         grid.set('A2', new Cell('=3', spreadsheet));
         grid.set('B2', new Cell('=4', spreadsheet));
+        grid.set('C1', new Cell('=5', spreadsheet));
+        grid.set('C2', new Cell('=6', spreadsheet));
         spreadsheet = new SpreadSheet(grid);
       });
 
       it('should insert column', () => {
         spreadsheet.insertColumn(1, user);
-        expect(spreadsheet.getCell('A1').getValue()).toBe(1);
-        expect(spreadsheet.getCell('B1').getValue()).toBeNull();
+        expect(spreadsheet.getCell('B1').getValue()).toBe(1);
         expect(spreadsheet.getCell('C1').getValue()).toBe(2);
+        expect(spreadsheet.getCell('B2').getValue()).toBe(3);
+        expect(spreadsheet.getCell('C2').getValue()).toBe(4);
       });
 
       it('should delete column', () => {
         spreadsheet.deleteColumn(1, user);
-        expect(spreadsheet.getCell('A1').getValue()).toBe(1);
-        expect(spreadsheet.getCell('B1').getValue()).toBeNull();
+        expect(spreadsheet.getCell('A1').getValue()).toBe(2);
+        expect(spreadsheet.getCell('B1').getValue()).toBe(5);
       });
     });
   });
