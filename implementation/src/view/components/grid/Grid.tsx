@@ -17,7 +17,13 @@ const CELL_HEIGHT = 32;
 const BUFFER_ROWS = 0;
 const BUFFER_COLS = 0;
 
-const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpdate, onCellSelect }) => {
+const Grid: React.FC<GridProps> = ({
+  user,
+  spreadsheet,
+  selectedCell,
+  onCellUpdate,
+  onCellSelect,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const columnHeaderRef = useRef<HTMLDivElement>(null);
   const rowHeaderRef = useRef<HTMLDivElement>(null);
@@ -42,7 +48,8 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
     addresses.forEach(address => {
       const match = address.match(/^([A-Za-z]+)(\d+)$/);
       if (match) {
-        const col = match[1].length === 1 ? match[1].charCodeAt(0) - 65 : 26 + (match[1].charCodeAt(1) - 65);
+        const col =
+          match[1].length === 1 ? match[1].charCodeAt(0) - 65 : 26 + (match[1].charCodeAt(1) - 65);
         const row = parseInt(match[2]) - 1;
         maxRow = Math.max(maxRow, row);
         maxCol = Math.max(maxCol, col);
@@ -51,7 +58,7 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
 
     return {
       totalRows: maxRow + 2, // Add 1 for 0-based index and 1 for new row
-      totalCols: maxCol + 2  // Add 1 for 0-based index and 1 for new column
+      totalCols: maxCol + 2, // Add 1 for 0-based index and 1 for new column
     };
   });
 
@@ -74,7 +81,8 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
     addresses.forEach(address => {
       const match = address.match(/^([A-Za-z]+)(\d+)$/);
       if (match) {
-        const col = match[1].length === 1 ? match[1].charCodeAt(0) - 65 : 26 + (match[1].charCodeAt(1) - 65);
+        const col =
+          match[1].length === 1 ? match[1].charCodeAt(0) - 65 : 26 + (match[1].charCodeAt(1) - 65);
         const row = parseInt(match[2]) - 1;
         maxRow = Math.max(maxRow, row);
         maxCol = Math.max(maxCol, col);
@@ -83,7 +91,7 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
 
     setGridDimensions({
       totalRows: maxRow + 2,
-      totalCols: maxCol + 2
+      totalCols: maxCol + 2,
     });
   }, [spreadsheet]);
 
@@ -91,8 +99,9 @@ const Grid: React.FC<GridProps> = ({ user, spreadsheet, selectedCell, onCellUpda
     if (index < 26) {
       return String.fromCharCode(65 + index);
     }
-    return String.fromCharCode(65 + Math.floor(index / 26) - 1) +
-           String.fromCharCode(65 + (index % 26));
+    return (
+      String.fromCharCode(65 + Math.floor(index / 26) - 1) + String.fromCharCode(65 + (index % 26))
+    );
   };
 
   const getCellAddress = (row: number, col: number): string => {

@@ -1,6 +1,6 @@
-import { CellBuilder } from "model/builders/CellBuilder";
-import { Cell } from "model/components/Cell";
-import { SpreadSheet } from "model/components/SpreadSheet";
+import { CellBuilder } from 'model/builders/CellBuilder';
+import { Cell } from 'model/components/Cell';
+import { SpreadSheet } from 'model/components/SpreadSheet';
 
 describe('CellBuilder', (): void => {
   let builder: CellBuilder;
@@ -130,7 +130,7 @@ describe('CellBuilder', (): void => {
     it('should handle malformed input', (): void => {
       builder.setContext(['==2+3']);
       const cell = builder.getProduct();
-      // Since expression is a formula will see =2 as 
+      // Since expression is a formula will see =2 as
       // Invalid when adding to 3
       expect(cell.getValue()).toBe('Invalid Expression3');
     });

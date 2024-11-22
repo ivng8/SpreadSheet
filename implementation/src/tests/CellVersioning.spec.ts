@@ -1,8 +1,8 @@
-import { Cell } from "model/components/Cell";
-import { SpreadSheet } from "model/components/SpreadSheet";
-import { User } from "model/components/User";
-import { Director } from "model/Director";
-import { VersionHistory } from "model/version/VersionHistory";
+import { Cell } from 'model/components/Cell';
+import { SpreadSheet } from 'model/components/SpreadSheet';
+import { User } from 'model/components/User';
+import { Director } from 'model/Director';
+import { VersionHistory } from 'model/version/VersionHistory';
 
 describe('Cell Version History', () => {
   let spreadsheet: SpreadSheet;
@@ -57,7 +57,7 @@ describe('Cell Version History', () => {
       spreadsheet = new SpreadSheet(grid);
       cell = new Cell('=REF(A1)', spreadsheet);
       expect(cell.getValue()).toBe(42);
-      
+
       cellA1.updateContents('=43', user1);
       expect(cell.getValue()).toBe(43);
     });
@@ -122,7 +122,7 @@ describe('Cell Version History', () => {
     });
 
     it('should handle multiple rapid updates', () => {
-      for(let i = 0; i < 100; i++) {
+      for (let i = 0; i < 100; i++) {
         cell.updateContents(`value${i}`, user1);
       }
       expect(cell.getInput()).toBe('value99');
@@ -134,7 +134,7 @@ describe('Cell Version History', () => {
     it('should handle alternating user updates', () => {
       cell.updateContents('user1 content', user1);
       expect(cell.getInput()).toBe('user1 content');
-      
+
       cell.updateContents('user2 content', user2);
       expect(cell.getInput()).toBe('user2 content');
     });
@@ -142,7 +142,7 @@ describe('Cell Version History', () => {
     it('should handle formula updates from different users', () => {
       cell.updateContents('=1+1', user1);
       expect(cell.getValue()).toBe(2);
-      
+
       cell.updateContents('=2+2', user2);
       expect(cell.getValue()).toBe(4);
     });
@@ -158,7 +158,7 @@ describe('Cell Version History', () => {
       expect(history[0].entries.length).toBe(3);
       expect(history[0].entries.map(entry => entry.getEntry())).toEqual(['', '=1', '']);
     });
-    
+
     it('should create new entries in the main branch', () => {
       versionHistory.addEntry('=1', user1);
       versionHistory.addEntry('=2', user1);
@@ -195,17 +195,17 @@ describe('Cell Version History', () => {
       expect(updatedHistory.length).toBe(2);
       expect(updatedHistory[1].parent).toEqual({
         index: 0,
-        entryId: secondEntryId
+        entryId: secondEntryId,
       });
     });
 
     it('should maintain branch relationships correctly', () => {
       versionHistory.addEntry('=1', user1);
       versionHistory.addEntry('=2', user1);
-      
+
       const history = versionHistory.getHistory();
       const firstEntryId = history[0].entries[0].getId();
-      
+
       versionHistory.revert(firstEntryId);
       versionHistory.addEntry('=3', user2);
 
@@ -219,7 +219,7 @@ describe('Cell Version History', () => {
     it('should auto-merge branches with same content', () => {
       versionHistory.addEntry('=1', user1);
       versionHistory.addEntry('=2', user1);
-      
+
       const firstEntryId = versionHistory.getHistory()[0].entries[0].getId();
       versionHistory.revert(firstEntryId);
       versionHistory.addEntry('=2', user2);
@@ -232,7 +232,7 @@ describe('Cell Version History', () => {
     it('should not merge branches with different content', () => {
       versionHistory.addEntry('=1', user1);
       versionHistory.addEntry('=2', user1);
-      
+
       const firstEntryId = versionHistory.getHistory()[0].entries[0].getId();
       versionHistory.revert(firstEntryId);
       versionHistory.addEntry('=3', user2);
@@ -245,15 +245,14 @@ describe('Cell Version History', () => {
     it('should preserve branch history after merge', () => {
       versionHistory.addEntry('=1', user1);
       versionHistory.addEntry('=2', user1);
-      
+
       const firstEntryId = versionHistory.getHistory()[0].entries[0].getId();
       versionHistory.revert(firstEntryId);
       versionHistory.addEntry('=2', user2);
 
       const history = versionHistory.getHistory();
       expect(history[0].entries.length).toBe(2);
-      expect(history[0].entries.map(entry => entry.getEntry()))
-        .toEqual(['=1', '=2']);
+      expect(history[0].entries.map(entry => entry.getEntry())).toEqual(['=1', '=2']);
     });
   });
 
@@ -261,14 +260,14 @@ describe('Cell Version History', () => {
     it('should handle multiple branches and merges', () => {
       versionHistory.addEntry('=1', user1);
       versionHistory.addEntry('=2', user1);
-      
+
       const firstEntryId = versionHistory.getHistory()[0].entries[0].getId();
       versionHistory.revert(firstEntryId);
       versionHistory.addEntry('=3', user2);
-      
+
       versionHistory.revert(firstEntryId);
       versionHistory.addEntry('=4', user2);
-      
+
       versionHistory.revert(firstEntryId);
       versionHistory.addEntry('=2', user2);
 
@@ -281,11 +280,11 @@ describe('Cell Version History', () => {
     it('should handle deep branching scenarios', () => {
       versionHistory.addEntry('=1', user1);
       versionHistory.addEntry('=2', user1);
-      
+
       const secondEntryId = versionHistory.getHistory()[0].entries[1].getId();
       versionHistory.revert(secondEntryId);
       versionHistory.addEntry('=3', user2);
-      
+
       const branchEntryId = versionHistory.getHistory()[1].entries[0].getId();
       versionHistory.revert(branchEntryId);
       versionHistory.addEntry('=4', user2);

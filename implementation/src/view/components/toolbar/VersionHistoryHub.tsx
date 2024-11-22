@@ -113,13 +113,13 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 };
 
 const VersionHistoryHub: React.FC<VersionHistoryHubProps> = ({
-    spreadsheet,
-    selectedCell,
-    onCellUpdate,
-    user,
-    onSpreadsheetUpdate,
-    syncer,
-  }) => {
+  spreadsheet,
+  selectedCell,
+  onCellUpdate,
+  user,
+  onSpreadsheetUpdate,
+  syncer,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [history, setHistory] = useState<BranchEntry[]>([]);
 

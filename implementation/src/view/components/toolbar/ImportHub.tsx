@@ -40,7 +40,7 @@ const ImportHub: React.FC<ImportHubProps> = ({
 
       // Set up conflict handling before import
       resolver.onConflict((conflict, resolveConflict) => {
-        console.log("Conflict detected:", conflict);
+        console.log('Conflict detected:', conflict);
         setConflicts(prev => {
           if (!prev.find(c => c.getCell() === conflict.getCell())) {
             return [...prev, conflict];
@@ -52,7 +52,7 @@ const ImportHub: React.FC<ImportHubProps> = ({
 
       // Pass the resolver to import
       await spreadsheet.import(file, selectedCell, user, resolver);
-      
+
       // Only update if there were no conflicts
       if (!resolver.hasPendingConflicts()) {
         onSpreadsheetUpdate();
@@ -91,7 +91,7 @@ const ImportHub: React.FC<ImportHubProps> = ({
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     dragCounterRef.current = 0;
-    
+
     if (!selectedCell) return;
 
     const file = event.dataTransfer.files[0];
@@ -105,18 +105,18 @@ const ImportHub: React.FC<ImportHubProps> = ({
   const handleConflictResolution = async (conflict: MergeConflict, useOriginal: boolean) => {
     if (!resolverRef.current) return;
 
-    console.log("Resolving conflict:", conflict.getCell(), useOriginal);
+    console.log('Resolving conflict:', conflict.getCell(), useOriginal);
 
     // Apply the chosen value
     const cell = conflict.use(useOriginal);
     onCellUpdate(conflict.getCell(), cell.getInput());
-    
+
     // Update UI state
     setConflicts(prev => prev.filter(c => c.getCell() !== conflict.getCell()));
-    
+
     // Resolve this specific conflict
     resolverRef.current.resolveConflict(conflict.getCell(), useOriginal);
-    
+
     // If this was the last conflict, close dialog and update
     if (conflicts.length <= 1) {
       setShowConflicts(false);

@@ -13,15 +13,17 @@ export class VersionHistory {
    * constructor of a version history
    */
   public constructor() {
-    this.branches = [{
+    this.branches = [
+      {
         entries: [],
-        parent: null
-    }];
+        parent: null,
+      },
+    ];
   }
 
   /**
    * generates a string id for version entries
-   * @returns 
+   * @returns
    */
   private generateId(): string {
     return Math.random().toString(36).substring(2, 9);
@@ -39,10 +41,10 @@ export class VersionHistory {
     if (this.lastRevertEntry) {
       this.branches.push({
         entries: [newEntry],
-          parent: {
-              index: this.findSplitOff(this.lastRevertEntry),
-              entryId: this.lastRevertEntry
-          }
+        parent: {
+          index: this.findSplitOff(this.lastRevertEntry),
+          entryId: this.lastRevertEntry,
+        },
       });
       this.lastRevertEntry = null;
       this.tryMerge();
@@ -67,13 +69,13 @@ export class VersionHistory {
     const lastContent = lastBranch.entries[lastBranch.entries.length - 1].getEntry();
 
     for (let i = 0; i < this.branches.length - 1; i += 1) {
-        const branch = this.branches[i];
-        const branchHead = branch.entries[branch.entries.length - 1];
+      const branch = this.branches[i];
+      const branchHead = branch.entries[branch.entries.length - 1];
 
-        if (branchHead.getEntry() === lastContent) {
-            this.branches.pop();
-            break;
-        }
+      if (branchHead.getEntry() === lastContent) {
+        this.branches.pop();
+        break;
+      }
     }
   }
 
@@ -84,10 +86,10 @@ export class VersionHistory {
    */
   private findSplitOff(entryId: string): number {
     for (let i = 0; i < this.branches.length; i += 1) {
-        const nodeIndex = this.branches[i].entries.findIndex(entry => entry.getId() === entryId);
-        if (nodeIndex !== -1) {
-            return i;
-        }
+      const nodeIndex = this.branches[i].entries.findIndex(entry => entry.getId() === entryId);
+      if (nodeIndex !== -1) {
+        return i;
+      }
     }
     throw new Error('Node not found');
   }

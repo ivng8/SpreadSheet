@@ -29,7 +29,7 @@ const MergeConflictDialog: React.FC<MergeConflictDialogProps> = ({
         </div>
         <ScrollArea className="flex-1">
           <div className="space-y-4 p-4">
-            {conflicts.map((conflict) => (
+            {conflicts.map(conflict => (
               <Card key={conflict.getCell()} className="p-4">
                 <div className="flex flex-col space-y-4">
                   <div className="font-medium">Cell {conflict.getCell()}</div>

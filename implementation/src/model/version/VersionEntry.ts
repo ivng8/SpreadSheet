@@ -36,7 +36,15 @@ export class VersionEntry {
   }
 
   public display(): string {
-    return 'At:' + this.timeStamp.toLocaleDateString() + '\n' +
-      this.expression + '\n' + 'By:' + this.user.getName() + '\n';
+    return (
+      'At:' +
+      this.timeStamp.toLocaleDateString() +
+      '\n' +
+      this.expression +
+      '\n' +
+      'By:' +
+      this.user.getName() +
+      '\n'
+    );
   }
 }

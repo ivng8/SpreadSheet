@@ -1,4 +1,4 @@
-import { VersionEntry } from "./VersionEntry";
+import { VersionEntry } from './VersionEntry';
 
 /**
  * represents a branch in the editing history similar to git
@@ -6,9 +6,9 @@ import { VersionEntry } from "./VersionEntry";
  * also has the parent which has an index and id
  */
 export interface BranchEntry {
-    entries: VersionEntry[];
-    parent: {
-        index: number;
-        entryId: string;
-    } | null
+  entries: VersionEntry[];
+  parent: {
+    index: number;
+    entryId: string;
+  } | null;
 }

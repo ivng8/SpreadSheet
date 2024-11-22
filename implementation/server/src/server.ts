@@ -46,7 +46,7 @@ class CollaborationServer {
             client = {
               ws,
               userId: userId,
-              sessionId: data.sessionId
+              sessionId: data.sessionId,
             };
             this.joinSession(client);
             console.log(`User ${userId} joined session ${data.sessionId}`);
@@ -58,26 +58,30 @@ class CollaborationServer {
               client = {
                 ws,
                 userId: userId,
-                sessionId: existingSessionId
+                sessionId: existingSessionId,
               };
               this.joinSession(client);
-              ws.send(JSON.stringify({
-                type: 'SESSION_CREATED',
-                sessionId: existingSessionId
-              }));
+              ws.send(
+                JSON.stringify({
+                  type: 'SESSION_CREATED',
+                  sessionId: existingSessionId,
+                })
+              );
             } else {
               const sessionId = nanoid();
               client = {
                 ws,
                 userId: userId,
-                sessionId
+                sessionId,
               };
               this.createSession(client, data.initialState);
               this.clientSessions.set(userId, sessionId);
-              ws.send(JSON.stringify({
-                type: 'SESSION_CREATED',
-                sessionId
-              }));
+              ws.send(
+                JSON.stringify({
+                  type: 'SESSION_CREATED',
+                  sessionId,
+                })
+              );
               console.log(`User ${userId} created new session ${sessionId}`);
             }
             break;
@@ -104,7 +108,7 @@ class CollaborationServer {
         }
       });
 
-      ws.on('error', (error) => {
+      ws.on('error', error => {
         console.error('WebSocket error:', error);
         if (client) {
           this.leaveSession(client);
@@ -118,7 +122,7 @@ class CollaborationServer {
   private createSession(client: Client, initialState: { [address: string]: string }) {
     const sessionState: SessionState = {
       cells: initialState || {},
-      clients: new Set([client])
+      clients: new Set([client]),
     };
     this.sessions.set(client.sessionId, sessionState);
   }
@@ -129,7 +133,7 @@ class CollaborationServer {
       // If session doesn't exist, create it
       this.sessions.set(client.sessionId, {
         cells: {},
-        clients: new Set([client])
+        clients: new Set([client]),
       });
     } else {
       session.clients.add(client);
@@ -137,10 +141,14 @@ class CollaborationServer {
 
     this.sendInitialState(client);
 
-    this.broadcastToSession(client.sessionId, {
-      type: 'USER_JOINED',
-      userId: client.userId
-    }, client);
+    this.broadcastToSession(
+      client.sessionId,
+      {
+        type: 'USER_JOINED',
+        userId: client.userId,
+      },
+      client
+    );
   }
 
   private leaveSession(client: Client) {
@@ -152,10 +160,14 @@ class CollaborationServer {
         // Only delete session data if there are no connected clients
         console.log(`Last client left session ${client.sessionId}, preserving session data`);
       } else {
-        this.broadcastToSession(client.sessionId, {
-          type: 'USER_LEFT',
-          userId: client.userId
-        }, client);
+        this.broadcastToSession(
+          client.sessionId,
+          {
+            type: 'USER_LEFT',
+            userId: client.userId,
+          },
+          client
+        );
       }
     }
   }
@@ -163,10 +175,12 @@ class CollaborationServer {
   private sendInitialState(client: Client) {
     const session = this.sessions.get(client.sessionId);
     if (session) {
-      client.ws.send(JSON.stringify({
-        type: 'SYNC_STATE',
-        state: session.cells
-      }));
+      client.ws.send(
+        JSON.stringify({
+          type: 'SYNC_STATE',
+          state: session.cells,
+        })
+      );
     }
   }
 
@@ -177,11 +191,15 @@ class CollaborationServer {
       session.cells[operation.address] = operation.value;
 
       // Broadcast to all clients
-      this.broadcastToSession(client.sessionId, {
-        type: 'OPERATION',
-        operation,
-        userId: client.userId
-      }, client);
+      this.broadcastToSession(
+        client.sessionId,
+        {
+          type: 'OPERATION',
+          operation,
+          userId: client.userId,
+        },
+        client
+      );
     }
   }
 

@@ -2,7 +2,6 @@
  * interface for a general build pattern
  */
 export interface IBuilder {
-
   /**
    * returns the constructed instance of whatever the implemented class is making
    */

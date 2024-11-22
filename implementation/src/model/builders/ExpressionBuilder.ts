@@ -124,7 +124,7 @@ export class ExpressionBuilder implements IBuilder {
   }
 
   /**
-   * looks for operators following PEMDAS precedence that are outside of 
+   * looks for operators following PEMDAS precedence that are outside of
    * parentheses in order to create a tree-structure that will evaluate correctly
    * @param skip_indicies the indicies of characters that are encapsulated in parentheses
    * @returns void

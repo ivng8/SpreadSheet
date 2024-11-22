@@ -1,7 +1,7 @@
-import { SpreadSheet } from "model/components/SpreadSheet";
-import { Cell } from "model/components/Cell";
-import { User } from "model/components/User";
-import { Director } from "model/Director";
+import { SpreadSheet } from 'model/components/SpreadSheet';
+import { Cell } from 'model/components/Cell';
+import { User } from 'model/components/User';
+import { Director } from 'model/Director';
 
 describe('SpreadSheet', () => {
   let spreadsheet: SpreadSheet;
@@ -11,7 +11,7 @@ describe('SpreadSheet', () => {
   beforeEach(() => {
     director = new Director();
     spreadsheet = director.makeSpreadSheet();
-    user = new User("Test User", "test@example.com");
+    user = new User('Test User', 'test@example.com');
   });
 
   describe('Grid Management', () => {
@@ -94,10 +94,10 @@ describe('SpreadSheet', () => {
       spreadsheet = new SpreadSheet(grid);
       grid.set('A2', new Cell('=REF(A1)+1', spreadsheet));
       grid.set('A3', new Cell('=REF(A2)+1', spreadsheet));
-      
+
       spreadsheet.getCell('A1').updateContents('=2', user);
       spreadsheet.recalculate();
-      
+
       expect(spreadsheet.getCell('A2').getValue()).toBe(3);
       expect(spreadsheet.getCell('A3').getValue()).toBe(4);
     });

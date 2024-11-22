@@ -48,7 +48,7 @@ export class SpreadSheet {
     this.updateReferences(index, 0, 1, user);
     const digits = Array.from(this.grid.keys());
     let keys: string[] = [];
-    let ans: Map<string, Cell> = new Map<string, Cell>;
+    let ans: Map<string, Cell> = new Map<string, Cell>();
     for (let i = 0; i < digits.length; i += 1) {
       const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
       if (parseInt(key[2]) >= index) {
@@ -74,7 +74,7 @@ export class SpreadSheet {
   public deleteRow(index: number, user: User): void {
     this.updateReferences(index, 0, -1, user);
     const digits = Array.from(this.grid.keys());
-    let ans: Map<string, Cell> = new Map<string, Cell>;
+    let ans: Map<string, Cell> = new Map<string, Cell>();
     for (let i = 0; i < digits.length; i += 1) {
       const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
       if (parseInt(key[2]) > index) {
@@ -95,15 +95,17 @@ export class SpreadSheet {
     this.updateReferences(index, 1, 0, user);
     const digits = Array.from(this.grid.keys());
     let keys: string[] = [];
-    let ans: Map<string, Cell> = new Map<string, Cell>;
+    let ans: Map<string, Cell> = new Map<string, Cell>();
     for (let i = 0; i < digits.length; i += 1) {
       const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
       if (Utility.columnLetterToNumber(key[1]!) >= index) {
         if (Utility.columnLetterToNumber(key[1]!) === index) {
           keys.push(digits[i]);
         }
-        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) + 1) +
-          key[2], this.grid.get(digits[i])!);
+        ans.set(
+          Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) + 1) + key[2],
+          this.grid.get(digits[i])!
+        );
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -122,12 +124,14 @@ export class SpreadSheet {
   public deleteColumn(index: number, user: User): void {
     this.updateReferences(index, -1, 0, user);
     const digits = Array.from(this.grid.keys());
-    let ans: Map<string, Cell> = new Map<string, Cell>;
+    let ans: Map<string, Cell> = new Map<string, Cell>();
     for (let i = 0; i < digits.length; i += 1) {
       const key = digits[i].match(/^([A-Za-z]+)(\d+)$/) || [];
       if (Utility.columnLetterToNumber(key[1]!) > index) {
-        ans.set(Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) - 1) +
-          key[2], this.grid.get(digits[i])!);
+        ans.set(
+          Utility.numberToColumnLetter(Utility.columnLetterToNumber(key[1]!) - 1) + key[2],
+          this.grid.get(digits[i])!
+        );
       } else {
         ans.set(digits[i], this.grid.get(digits[i])!);
       }
@@ -193,7 +197,12 @@ export class SpreadSheet {
    * @param originPoint the location of the drag and drop
    * @param user the user doing it
    */
-  public async import(file: File, originPoint: string, user: User, resolver?: MergeConflictResolver): Promise<void> {
+  public async import(
+    file: File,
+    originPoint: string,
+    user: User,
+    resolver?: MergeConflictResolver
+  ): Promise<void> {
     console.log(originPoint);
     try {
       const sheet = await Utility.xlsxImport(file);
@@ -214,13 +223,12 @@ export class SpreadSheet {
     }
   }
 
-
   /**
    * writes the data in the spreadsheet into a Excel file
    * @param outputPath the path of the file the user wants to write into
    */
   public export(outputPath: string): void {
-    let outputs: Map<string, string> = new Map<string, string>;
+    let outputs: Map<string, string> = new Map<string, string>();
     const toString = (value: string | number | null): string =>
       value === null ? '' : String(value);
     const curr = this.copyGrid();

@@ -1,4 +1,4 @@
-import { Utility } from "model/Utility";
+import { Utility } from 'model/Utility';
 
 describe('Utility', () => {
   describe('Column Letter to Number Conversion', () => {
@@ -52,9 +52,7 @@ describe('Utility', () => {
 
   describe('Bidirectional Conversion', () => {
     it('should correctly convert back and forth', () => {
-      const testCases = [
-        'A', 'B', 'Z', 'AA', 'AZ', 'BA', 'ZZ', 'AAA', 'XFD'
-      ];
+      const testCases = ['A', 'B', 'Z', 'AA', 'AZ', 'BA', 'ZZ', 'AAA', 'XFD'];
 
       testCases.forEach(letter => {
         const number = Utility.columnLetterToNumber(letter);

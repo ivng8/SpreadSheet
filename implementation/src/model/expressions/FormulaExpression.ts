@@ -35,14 +35,14 @@ export class FormulaExpression implements IExpression {
     switch (this.operator) {
       case Operator.DIV:
         if (!math) {
-          this.cell.catchErrors(new IllegalOperands);
+          this.cell.catchErrors(new IllegalOperands());
           return null;
         } else {
           return this.left.evaluate() / this.right.evaluate();
         }
       case Operator.MINUS:
         if (!math) {
-          this.cell.catchErrors(new IllegalOperands);
+          this.cell.catchErrors(new IllegalOperands());
           return null;
         } else {
           return this.left.evaluate() - this.right.evaluate();
@@ -51,14 +51,14 @@ export class FormulaExpression implements IExpression {
         return this.left.evaluate() + this.right.evaluate();
       case Operator.MULT:
         if (!math) {
-          this.cell.catchErrors(new IllegalOperands);
+          this.cell.catchErrors(new IllegalOperands());
           return null;
         } else {
           return this.left.evaluate() * this.right.evaluate();
         }
       case Operator.POWER:
         if (!math) {
-          this.cell.catchErrors(new IllegalOperands);
+          this.cell.catchErrors(new IllegalOperands());
           return null;
         } else {
           return this.left.evaluate() ** this.right.evaluate();

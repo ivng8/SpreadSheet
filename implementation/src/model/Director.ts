@@ -11,7 +11,6 @@ import { SpreadSheet } from 'model/components/SpreadSheet';
  * of an object using their respective builder implementation class
  */
 export class Director {
-
   /**
    * constructs a cell using the CellBuilder
    * @param input the user input inside of the cell

@@ -17,7 +17,7 @@ describe('ExpressionBuilder', (): void => {
   let cell: Cell;
 
   beforeEach(() => {
-    spreadsheet = new SpreadSheet(new Map <string, Cell>);
+    spreadsheet = new SpreadSheet(new Map<string, Cell>());
     director = new Director();
     cell = new Cell('', spreadsheet);
   });
@@ -54,9 +54,7 @@ describe('ExpressionBuilder', (): void => {
 
   describe('Cell References', () => {
     beforeEach(() => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=42', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(new Map([['A1', new Cell('=42', spreadsheet)]]));
       cell = new Cell('', spreadsheet);
     });
 
@@ -69,44 +67,52 @@ describe('ExpressionBuilder', (): void => {
 
   describe('Range Expressions', () => {
     it('should sum a range of expressions when SUM is used', (): void => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=2', spreadsheet)],
-        ['A2', new Cell('=3', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(
+        new Map([
+          ['A1', new Cell('=2', spreadsheet)],
+          ['A2', new Cell('=3', spreadsheet)],
+        ])
+      );
       const expr = director.makeExpression('=SUM(A1:A2)', spreadsheet, cell);
       expect(expr).toBeInstanceOf(RangeExpression);
       expect(expr.evaluate()).toBe(5);
     });
 
     it('should calculate average of a range of expressions when AVG is used', (): void => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=2', spreadsheet)],
-        ['A2', new Cell('=10', spreadsheet)],
-        ['A3', new Cell('=5', spreadsheet)],
-        ['A4', new Cell('=3', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(
+        new Map([
+          ['A1', new Cell('=2', spreadsheet)],
+          ['A2', new Cell('=10', spreadsheet)],
+          ['A3', new Cell('=5', spreadsheet)],
+          ['A4', new Cell('=3', spreadsheet)],
+        ])
+      );
       const expr = director.makeExpression('=AVG(A1:A4)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(5);
     });
 
     it('should give the min of a range of expressions when MIN is used', (): void => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=2', spreadsheet)],
-        ['A2', new Cell('=10', spreadsheet)],
-        ['A3', new Cell('=5', spreadsheet)],
-        ['A4', new Cell('=3', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(
+        new Map([
+          ['A1', new Cell('=2', spreadsheet)],
+          ['A2', new Cell('=10', spreadsheet)],
+          ['A3', new Cell('=5', spreadsheet)],
+          ['A4', new Cell('=3', spreadsheet)],
+        ])
+      );
       const expr = director.makeExpression('=MIN(A1:A4)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(2);
     });
 
     it('should give the max of a range of expressions when MAX is used', (): void => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=2', spreadsheet)],
-        ['A2', new Cell('=10', spreadsheet)],
-        ['A3', new Cell('=5', spreadsheet)],
-        ['A4', new Cell('=3', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(
+        new Map([
+          ['A1', new Cell('=2', spreadsheet)],
+          ['A2', new Cell('=10', spreadsheet)],
+          ['A3', new Cell('=5', spreadsheet)],
+          ['A4', new Cell('=3', spreadsheet)],
+        ])
+      );
       const expr = director.makeExpression('=MAX(A1:A4)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(10);
     });
@@ -260,26 +266,24 @@ describe('ExpressionBuilder', (): void => {
 
   describe('Range Expression Edge Cases', () => {
     it('should handle single cell range', (): void => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=42', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(new Map([['A1', new Cell('=42', spreadsheet)]]));
       const expr = director.makeExpression('=SUM(A1:A1)', spreadsheet, cell);
       expect(expr.evaluate()).toBe(42);
     });
 
     it('should handle invalid range format', (): void => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=42', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(new Map([['A1', new Cell('=42', spreadsheet)]]));
       const expr = director.makeExpression('=SUM(A1:)', spreadsheet, cell);
       expect(expr).toBeInstanceOf(InvalidExpression);
     });
 
     it('should handle unknown function names', (): void => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('42', spreadsheet)],
-        ['A2', new Cell('15', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(
+        new Map([
+          ['A1', new Cell('42', spreadsheet)],
+          ['A2', new Cell('15', spreadsheet)],
+        ])
+      );
       const expr = director.makeExpression('=UNKNOWN(A1:A2)', spreadsheet, cell);
       expect(expr).toBeInstanceOf(RangeExpression);
       expect(expr.evaluate()).toBe(null);
@@ -305,10 +309,12 @@ describe('ExpressionBuilder', (): void => {
 
   describe('Mixed Operations', () => {
     beforeEach(() => {
-      spreadsheet = new SpreadSheet(new Map([
-        ['A1', new Cell('=2', spreadsheet)],
-        ['A2', new Cell('=3', spreadsheet)]
-      ]));
+      spreadsheet = new SpreadSheet(
+        new Map([
+          ['A1', new Cell('=2', spreadsheet)],
+          ['A2', new Cell('=3', spreadsheet)],
+        ])
+      );
       cell = new Cell('', spreadsheet);
     });
 

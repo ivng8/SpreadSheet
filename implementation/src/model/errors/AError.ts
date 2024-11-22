@@ -5,7 +5,6 @@ import { IError } from '../interfaces/IError';
  * error which is to be overridden by its specific error
  */
 export abstract class AError implements IError {
-
   public evaluate(): string {
     return 'Error';
   }

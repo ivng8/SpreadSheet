@@ -8,18 +8,18 @@ export default defineConfig({
   base: '/',
   resolve: {
     alias: {
-      'model': resolve(__dirname, './src/model'),
-      'view': resolve(__dirname, './src/view'),
-      '@': resolve(__dirname, './src')
-    }
+      model: resolve(__dirname, './src/model'),
+      view: resolve(__dirname, './src/view'),
+      '@': resolve(__dirname, './src'),
+    },
   },
   server: {
     port: 3000,
-    open: true
+    open: true,
   },
   build: {
     outDir: '../../../dist',
     emptyOutDir: true,
-    sourcemap: true
-  }
+    sourcemap: true,
+  },
 });
