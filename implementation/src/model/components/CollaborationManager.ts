@@ -3,6 +3,7 @@ import { Cell } from './Cell';
 import { SpreadSheet } from './SpreadSheet';
 import { MergeConflict } from 'model/conflicts/MergeConflict';
 import { Utility } from 'model/Utility';
+import { User } from './User';
 
 /**
  * represents a class that resolves an instance of a clash between two spreadsheets
@@ -29,17 +30,17 @@ export class CollaborationManager {
    * @param resolver a class that processes user inputs into resolve promises
    * @returns a map that represents the mapping of the new spreadsheet
    */
-  async merge(resolver: MergeConflictResolver): Promise<Map<string, Cell>> {
+  async merge(resolver: MergeConflictResolver, user: User): Promise<Map<string, Cell>> {
     console.log('Starting merge process');
     const totalKeys = [...this.import1.keys(), ...this.import2.keys()];
     const uniqueKeys = [...new Set(totalKeys)];
     let conflicts = this.findConflicts(uniqueKeys);
-    let grid = this.noConflictMerge(uniqueKeys);
+    let grid = this.noConflictMerge(uniqueKeys, user);
 
     console.log('Found conflicts:', conflicts.length);
     if (conflicts.length > 0) {
       resolver.addConflicts(conflicts);
-      const resolutions = await resolver.resolve();
+      const resolutions = await resolver.resolve(user);
       this.applyResolutions(resolutions, grid);
     }
 
@@ -95,7 +96,7 @@ export class CollaborationManager {
    * @param uniqueKeys the set of keys where the addresses are all non conflicting
    * @returns a map of all the non conflicting cells between the 2 spreadsheets
    */
-  private noConflictMerge(uniqueKeys: string[]): Map<string, Cell> {
+  private noConflictMerge(uniqueKeys: string[], user: User): Map<string, Cell> {
     let grid: Map<string, Cell> = new Map<string, Cell>();
     let maxRow: number = 0;
     let maxCol: number = 0;
@@ -107,8 +108,8 @@ export class CollaborationManager {
 
       // Use import2's cell if import1's cell is null or has null value
       if (cell1?.getValue() === null && cell2 !== undefined) {
-        console.log(uniqueKeys[i]);
-        grid.set(uniqueKeys[i], cell2);
+        cell1.updateContents(cell2.getInput(), user);
+        grid.set(uniqueKeys[i], cell1);
       } else if (cell1 !== undefined) {
         grid.set(uniqueKeys[i], cell1);
       }

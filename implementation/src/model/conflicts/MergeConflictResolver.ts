@@ -1,3 +1,4 @@
+import { User } from 'model/components/User';
 import { MergeConflict } from './MergeConflict';
 import { Cell } from 'model/components/Cell';
 
@@ -33,7 +34,7 @@ export class MergeConflictResolver {
     }
   }
 
-  public async resolve(): Promise<Map<string, Cell>> {
+  public async resolve(user: User): Promise<Map<string, Cell>> {
     if (this.conflicts.length === 0) {
       return new Map<string, Cell>();
     }
@@ -46,7 +47,7 @@ export class MergeConflictResolver {
       conflict =>
         new Promise<[string, Cell]>(resolvePromise => {
           const resolutionHandler = (value: boolean) => {
-            resolvePromise([conflict.getCell(), conflict.use(value)]);
+            resolvePromise([conflict.getCell(), conflict.use(value, user)]);
           };
 
           // Store the resolution callback

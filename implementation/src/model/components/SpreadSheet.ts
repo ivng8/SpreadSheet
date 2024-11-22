@@ -214,7 +214,7 @@ export class SpreadSheet {
         sheet.insertRow(0, user);
       }
       const manager = new CollaborationManager(this, sheet);
-      const newGrid = await manager.merge(resolver || this.resolver);
+      const newGrid = await manager.merge(resolver || this.resolver, user);
       this.grid = newGrid;
       this.recalculate();
     } catch (error) {
