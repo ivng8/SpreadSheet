@@ -22,7 +22,6 @@ export class CellBuilder implements IBuilder {
 
   public getProduct(): Cell {
     let cell: Cell = new Cell(this.input, this.sheet);
-    // let history: VersionHistory = new VersionHistory();
     return cell;
   }
 
