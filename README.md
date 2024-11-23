@@ -28,6 +28,7 @@ pnpm install
 Start the development server:
 ```bash
 cd server
+pnpm install
 pnpm start
 cd ..
 pnpm run dev
