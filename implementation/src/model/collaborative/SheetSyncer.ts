@@ -69,7 +69,6 @@ export class SheetSyncer {
               break;
 
             case 'SYNC_STATE':
-              console.log(data.state);
               this.applyInitialState(data.state);
               break;
 
@@ -163,9 +162,7 @@ export class SheetSyncer {
         if (!operationUser) {
           operationUser = new User(userId, userId + '@example.com');
           this.connectedUsers.set(userId, operationUser);
-          console.log('here');
         }
-        console.log('here');
         cell.updateContents(value, operationUser);
       } catch (error) {
         console.error(`Error applying initial state to cell ${address}:`, error);

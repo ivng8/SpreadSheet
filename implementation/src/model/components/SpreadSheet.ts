@@ -347,7 +347,6 @@ export class SpreadSheet {
     user: User,
     resolver?: MergeConflictResolver
   ): Promise<void> {
-    console.log(originPoint);
     try {
       const sheet = await Utility.xlsxImport(file);
       const pair = originPoint.match(/^([A-Za-z]+)(\d+)$/)!;

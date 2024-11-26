@@ -31,13 +31,11 @@ export class CollaborationManager {
    * @returns a map that represents the mapping of the new spreadsheet
    */
   async merge(resolver: MergeConflictResolver, user: User): Promise<Map<string, Cell>> {
-    console.log('Starting merge process');
     const totalKeys = [...this.import1.keys(), ...this.import2.keys()];
     const uniqueKeys = [...new Set(totalKeys)];
     let conflicts = this.findConflicts(uniqueKeys);
     let grid = this.noConflictMerge(uniqueKeys, user);
 
-    console.log('Found conflicts:', conflicts.length);
     if (conflicts.length > 0) {
       resolver.addConflicts(conflicts);
       const resolutions = await resolver.resolve();
@@ -68,9 +66,6 @@ export class CollaborationManager {
 
       // Check for actual content conflicts
       if (cell1.getInput() !== cell2.getInput()) {
-        console.log('Conflict found at', uniqueKeys[i]);
-        console.log('Cell1:', cell1.getInput());
-        console.log('Cell2:', cell2.getInput());
         conflicts.push(new MergeConflict(uniqueKeys[i], cell1, cell2));
       }
     }
