@@ -30,7 +30,7 @@ Start the development server:
 cd server
 pnpm install
 pnpm start
-cd ..
+start a new terminal
 pnpm run dev
 ```
 
